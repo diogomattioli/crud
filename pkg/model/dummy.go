@@ -1,10 +1,13 @@
 package model
 
+import "github.com/diogomattioli/crud/pkg/data"
+
 type Dummy struct {
+	data.Validate[Dummy]
 	ID    int    `json:"id"`
 	Title string `json:"title"`
 }
 
-func (o *Dummy) IsValid() bool {
-	return valid(o.Title)
+func (o Dummy) IsCreateValid() bool {
+	return data.Valid(o.Title)
 }
