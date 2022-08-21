@@ -12,10 +12,8 @@ import (
 
 func TestListEmpty(t *testing.T) {
 
-	db := mockDb(0)
-	defer destroyDb(db)
-
-	SetDatabase(db)
+	setupDb(0)
+	defer destroyDb()
 
 	req, err := http.NewRequest("GET", "/dummy/", strings.NewReader(""))
 	if err != nil {
@@ -31,10 +29,8 @@ func TestListEmpty(t *testing.T) {
 
 func TestListNoParams(t *testing.T) {
 
-	db := mockDb(250)
-	defer destroyDb(db)
-
-	SetDatabase(db)
+	setupDb(250)
+	defer destroyDb()
 
 	req, err := http.NewRequest("GET", "/dummy/", strings.NewReader(""))
 	if err != nil {
@@ -64,10 +60,8 @@ func TestListNoParams(t *testing.T) {
 
 func TestList2ndPage(t *testing.T) {
 
-	db := mockDb(250)
-	defer destroyDb(db)
-
-	SetDatabase(db)
+	setupDb(250)
+	defer destroyDb()
 
 	req, err := http.NewRequest("GET", "/dummy/?page=2", strings.NewReader(""))
 	if err != nil {
@@ -97,10 +91,8 @@ func TestList2ndPage(t *testing.T) {
 
 func TestList25RecordsPage(t *testing.T) {
 
-	db := mockDb(250)
-	defer destroyDb(db)
-
-	SetDatabase(db)
+	setupDb(250)
+	defer destroyDb()
 
 	req, err := http.NewRequest("GET", "/dummy/?records=25", strings.NewReader(""))
 	if err != nil {
@@ -130,10 +122,8 @@ func TestList25RecordsPage(t *testing.T) {
 
 func TestList1Page(t *testing.T) {
 
-	db := mockDb(10)
-	defer destroyDb(db)
-
-	SetDatabase(db)
+	setupDb(10)
+	defer destroyDb()
 
 	req, err := http.NewRequest("GET", "/dummy/", strings.NewReader(""))
 	if err != nil {
@@ -163,10 +153,8 @@ func TestList1Page(t *testing.T) {
 
 func TestListRecordsBadRequest(t *testing.T) {
 
-	db := mockDb(10)
-	defer destroyDb(db)
-
-	SetDatabase(db)
+	setupDb(10)
+	defer destroyDb()
 
 	req, err := http.NewRequest("GET", "/dummy/?records=1000", strings.NewReader(""))
 	if err != nil {
@@ -204,10 +192,8 @@ func TestListRecordsBadRequest(t *testing.T) {
 
 func TestListPageBadRequest(t *testing.T) {
 
-	db := mockDb(10)
-	defer destroyDb(db)
-
-	SetDatabase(db)
+	setupDb(10)
+	defer destroyDb()
 
 	req, err := http.NewRequest("GET", "/dummy/?page=1000", strings.NewReader(""))
 	if err != nil {
@@ -245,10 +231,8 @@ func TestListPageBadRequest(t *testing.T) {
 
 func TestListIds(t *testing.T) {
 
-	db := mockDb(25)
-	defer destroyDb(db)
-
-	SetDatabase(db)
+	setupDb(25)
+	defer destroyDb()
 
 	req, err := http.NewRequest("GET", "/dummy/?id=13&id=19&id=21", strings.NewReader(""))
 	if err != nil {
@@ -280,10 +264,8 @@ func TestListIds(t *testing.T) {
 
 func TestListSearch(t *testing.T) {
 
-	db := mockDb(25)
-	defer destroyDb(db)
-
-	SetDatabase(db)
+	setupDb(25)
+	defer destroyDb()
 
 	req, err := http.NewRequest("GET", "/dummy/?search=5", strings.NewReader(""))
 	if err != nil {
@@ -315,10 +297,8 @@ func TestListSearch(t *testing.T) {
 
 func TestListSearchMultiple(t *testing.T) {
 
-	db := mockDb(25)
-	defer destroyDb(db)
-
-	SetDatabase(db)
+	setupDb(25)
+	defer destroyDb()
 
 	req, err := http.NewRequest("GET", "/dummy/?search=5&search=3", strings.NewReader(""))
 	if err != nil {
@@ -353,10 +333,8 @@ func TestListSearchMultiple(t *testing.T) {
 
 func TestListOrder(t *testing.T) {
 
-	db := mockDb(5)
-	defer destroyDb(db)
-
-	SetDatabase(db)
+	setupDb(5)
+	defer destroyDb()
 
 	req, err := http.NewRequest("GET", "/dummy/?order=Title", strings.NewReader(""))
 	if err != nil {

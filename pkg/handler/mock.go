@@ -12,7 +12,7 @@ type Dummy struct {
 	Title string `json:"title"`
 }
 
-func mockDb(quantity int) *gorm.DB {
+func setupDb(quantity int) {
 
 	db, err := gorm.Open(sqlite.Open(":memory:"), &gorm.Config{})
 	if err != nil {
@@ -25,11 +25,11 @@ func mockDb(quantity int) *gorm.DB {
 		db.Create(&Dummy{ID: i, Title: fmt.Sprintf("title%v", quantity-i+1)})
 	}
 
-	return db
+	SetDatabase(db)
 }
 
-func destroyDb(_db *gorm.DB) {
-	db, err := _db.DB()
+func destroyDb() {
+	db, err := db.DB()
 	if err == nil {
 		db.Close()
 	}
