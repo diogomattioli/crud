@@ -7,7 +7,6 @@ import (
 	"net/url"
 	"reflect"
 	"strconv"
-	"strings"
 
 	"github.com/diogomattioli/crud/pkg/data"
 	"gorm.io/gorm"
@@ -29,10 +28,10 @@ func search(db *gorm.DB, obj any, values url.Values) *gorm.DB {
 		}
 	}
 
-	if str := values.Get("search"); data.Valid(str) {
-		for _, str := range strings.Split(str, " ") {
+	for i := 0; i < len(values["search"]); i++ {
+		if str := values["search"][i]; data.Valid(str) {
 			for _, field := range fields {
-				db = db.Or(fmt.Sprintf("%s ILIKE ?", data.ToSnakeCase(field)), "%"+str+"%")
+				db = db.Or(fmt.Sprintf("LOWER(%s) LIKE LOWER(?)", data.ToSnakeCase(field)), "%"+str+"%")
 			}
 		}
 	}
@@ -62,8 +61,8 @@ func List[T any](w http.ResponseWriter, r *http.Request) {
 	if ids := r.URL.Query()["id"]; len(ids) > 0 {
 		innerDb = innerDb.Or(ids)
 	}
-	innerDb = search(innerDb, obj, r.URL.Query())
-	innerDb = order(innerDb, obj, r.URL.Query())
+	innerDb = search(innerDb, &obj, r.URL.Query())
+	innerDb = order(innerDb, &obj, r.URL.Query())
 	// Filters
 
 	var total int64
@@ -73,9 +72,11 @@ func List[T any](w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	var err error
+
 	recordsPerPage := defaultRecordsPerPage
 	if data.Valid(r.URL.Query().Get("records")) {
-		recordsPerPage, err := strconv.Atoi(r.URL.Query().Get("records"))
+		recordsPerPage, err = strconv.Atoi(r.URL.Query().Get("records"))
 		if err != nil || recordsPerPage < 1 || recordsPerPage > maxRecordsPerPage {
 			w.WriteHeader(http.StatusBadRequest)
 			return
@@ -89,14 +90,14 @@ func List[T any](w http.ResponseWriter, r *http.Request) {
 
 	page := 1
 	if data.Valid(r.URL.Query().Get("page")) {
-		page, err := strconv.Atoi(r.URL.Query().Get("page"))
+		page, err = strconv.Atoi(r.URL.Query().Get("page"))
 		if err != nil || page < 1 || page > pages {
 			w.WriteHeader(http.StatusBadRequest)
 			return
 		}
 	}
 
-	res := innerDb.Offset((page - 1) * recordsPerPage).Limit(recordsPerPage).Find(slice)
+	res := innerDb.Offset((page - 1) * recordsPerPage).Limit(recordsPerPage).Find(&slice)
 	if res.RowsAffected == 0 {
 		w.WriteHeader(http.StatusNotFound)
 		return
