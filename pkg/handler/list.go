@@ -56,7 +56,7 @@ func List[T any](w http.ResponseWriter, r *http.Request) {
 	var slice []T
 	var obj T
 
-	innerDb := DB
+	innerDb := db
 
 	// Filters
 	if ids := r.URL.Query()["id"]; len(ids) > 0 {

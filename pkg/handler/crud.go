@@ -8,10 +8,7 @@ import (
 
 	"github.com/diogomattioli/crud/pkg/data"
 	"github.com/gorilla/mux"
-	"gorm.io/gorm"
 )
-
-var DB *gorm.DB
 
 func Create[T data.CreateValidator](w http.ResponseWriter, r *http.Request) {
 
@@ -28,7 +25,7 @@ func Create[T data.CreateValidator](w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	res := DB.Create(obj)
+	res := db.Create(obj)
 	if res.RowsAffected == 0 {
 		w.WriteHeader(http.StatusNotFound)
 		return
@@ -53,7 +50,7 @@ func Retrieve[T any](w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	res := DB.First(obj, id)
+	res := db.First(obj, id)
 	if res.RowsAffected == 0 {
 		w.WriteHeader(http.StatusNotFound)
 		return
@@ -86,7 +83,7 @@ func Update[T data.UpdateValidator[T]](w http.ResponseWriter, r *http.Request) {
 
 	var old T
 
-	res := DB.First(old, id)
+	res := db.First(old, id)
 	if res.RowsAffected == 0 {
 		w.WriteHeader(http.StatusNotFound)
 		return
@@ -97,7 +94,7 @@ func Update[T data.UpdateValidator[T]](w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	res = DB.Save(obj)
+	res = db.Save(obj)
 	if res.RowsAffected == 0 {
 		w.WriteHeader(http.StatusNotFound)
 		return
@@ -122,7 +119,7 @@ func Delete[T data.DeleteValidator](w http.ResponseWriter, r *http.Request) {
 
 	var obj T
 
-	res := DB.First(obj, id)
+	res := db.First(obj, id)
 	if res.RowsAffected == 0 {
 		w.WriteHeader(http.StatusNotFound)
 		return
@@ -133,7 +130,7 @@ func Delete[T data.DeleteValidator](w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	res = DB.Delete(obj, id)
+	res = db.Delete(obj, id)
 	if res.RowsAffected == 0 {
 		w.WriteHeader(http.StatusNotFound)
 		return
