@@ -14,6 +14,11 @@ func Create[T data.CreateValidator](w http.ResponseWriter, r *http.Request) {
 
 	var obj T
 
+	if r.Body == nil {
+		w.WriteHeader(http.StatusBadRequest)
+		return
+	}
+
 	err := json.NewDecoder(r.Body).Decode(&obj)
 	if err != nil {
 		w.WriteHeader(http.StatusBadRequest)
@@ -74,6 +79,11 @@ func Update[T data.UpdateValidator[T]](w http.ResponseWriter, r *http.Request) {
 	}
 
 	var obj T
+
+	if r.Body == nil {
+		w.WriteHeader(http.StatusBadRequest)
+		return
+	}
 
 	err = json.NewDecoder(r.Body).Decode(&obj)
 	if err != nil {
