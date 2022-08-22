@@ -3,7 +3,6 @@ package handler
 import (
 	"encoding/json"
 	"net/http"
-	"strings"
 	"testing"
 
 	"github.com/stretchr/testify/assert"
@@ -14,7 +13,7 @@ func TestListEmpty(t *testing.T) {
 	setupDb(0)
 	defer destroyDb()
 
-	req, err := http.NewRequest("GET", "/dummy/", strings.NewReader(""))
+	req, err := http.NewRequest("GET", "/dummy/", nil)
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -29,7 +28,7 @@ func TestListNoParams(t *testing.T) {
 	setupDb(250)
 	defer destroyDb()
 
-	req, err := http.NewRequest("GET", "/dummy/", strings.NewReader(""))
+	req, err := http.NewRequest("GET", "/dummy/", nil)
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -58,7 +57,7 @@ func TestList2ndPage(t *testing.T) {
 	setupDb(250)
 	defer destroyDb()
 
-	req, err := http.NewRequest("GET", "/dummy/?page=2", strings.NewReader(""))
+	req, err := http.NewRequest("GET", "/dummy/?page=2", nil)
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -87,7 +86,7 @@ func TestList25RecordsPage(t *testing.T) {
 	setupDb(250)
 	defer destroyDb()
 
-	req, err := http.NewRequest("GET", "/dummy/?records=25", strings.NewReader(""))
+	req, err := http.NewRequest("GET", "/dummy/?records=25", nil)
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -116,7 +115,7 @@ func TestList1Page(t *testing.T) {
 	setupDb(10)
 	defer destroyDb()
 
-	req, err := http.NewRequest("GET", "/dummy/", strings.NewReader(""))
+	req, err := http.NewRequest("GET", "/dummy/", nil)
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -145,7 +144,7 @@ func TestListRecordsBadRequest(t *testing.T) {
 	setupDb(10)
 	defer destroyDb()
 
-	req, err := http.NewRequest("GET", "/dummy/?records=1000", strings.NewReader(""))
+	req, err := http.NewRequest("GET", "/dummy/?records=1000", nil)
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -154,7 +153,7 @@ func TestListRecordsBadRequest(t *testing.T) {
 
 	assert.Equal(t, http.StatusBadRequest, rec.Code)
 
-	req, err = http.NewRequest("GET", "/dummy/?records=-1000", strings.NewReader(""))
+	req, err = http.NewRequest("GET", "/dummy/?records=-1000", nil)
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -163,7 +162,7 @@ func TestListRecordsBadRequest(t *testing.T) {
 
 	assert.Equal(t, http.StatusBadRequest, rec.Code)
 
-	req, err = http.NewRequest("GET", "/dummy/?records=abc", strings.NewReader(""))
+	req, err = http.NewRequest("GET", "/dummy/?records=abc", nil)
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -178,7 +177,7 @@ func TestListPageBadRequest(t *testing.T) {
 	setupDb(10)
 	defer destroyDb()
 
-	req, err := http.NewRequest("GET", "/dummy/?page=1000", strings.NewReader(""))
+	req, err := http.NewRequest("GET", "/dummy/?page=1000", nil)
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -187,7 +186,7 @@ func TestListPageBadRequest(t *testing.T) {
 
 	assert.Equal(t, http.StatusBadRequest, rec.Code)
 
-	req, err = http.NewRequest("GET", "/dummy/?page=-1000", strings.NewReader(""))
+	req, err = http.NewRequest("GET", "/dummy/?page=-1000", nil)
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -196,7 +195,7 @@ func TestListPageBadRequest(t *testing.T) {
 
 	assert.Equal(t, http.StatusBadRequest, rec.Code)
 
-	req, err = http.NewRequest("GET", "/dummy/?page=abc", strings.NewReader(""))
+	req, err = http.NewRequest("GET", "/dummy/?page=abc", nil)
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -211,7 +210,7 @@ func TestListIds(t *testing.T) {
 	setupDb(25)
 	defer destroyDb()
 
-	req, err := http.NewRequest("GET", "/dummy/?id=13&id=19&id=21", strings.NewReader(""))
+	req, err := http.NewRequest("GET", "/dummy/?id=13&id=19&id=21", nil)
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -242,7 +241,7 @@ func TestListSearch(t *testing.T) {
 	setupDb(25)
 	defer destroyDb()
 
-	req, err := http.NewRequest("GET", "/dummy/?search=5", strings.NewReader(""))
+	req, err := http.NewRequest("GET", "/dummy/?search=5", nil)
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -273,7 +272,7 @@ func TestListSearchMultiple(t *testing.T) {
 	setupDb(25)
 	defer destroyDb()
 
-	req, err := http.NewRequest("GET", "/dummy/?search=5&search=3", strings.NewReader(""))
+	req, err := http.NewRequest("GET", "/dummy/?search=5&search=3", nil)
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -307,7 +306,7 @@ func TestListOrder(t *testing.T) {
 	setupDb(5)
 	defer destroyDb()
 
-	req, err := http.NewRequest("GET", "/dummy/?order=Title", strings.NewReader(""))
+	req, err := http.NewRequest("GET", "/dummy/?order=Title", nil)
 	if err != nil {
 		t.Fatal(err)
 	}

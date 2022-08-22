@@ -43,6 +43,15 @@ func TestCreateEmpty(t *testing.T) {
 	rec := serveHTTP(req)
 
 	assert.Equal(t, http.StatusBadRequest, rec.Code)
+
+	req, err = http.NewRequest("POST", "/dummy/", nil)
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	rec = serveHTTP(req)
+
+	assert.Equal(t, http.StatusBadRequest, rec.Code)
 }
 
 func TestCreateNotValid(t *testing.T) {
@@ -65,7 +74,7 @@ func TestRetrieveOk(t *testing.T) {
 	setupDb(10)
 	defer destroyDb()
 
-	req, err := http.NewRequest("GET", "/dummy/7", strings.NewReader(""))
+	req, err := http.NewRequest("GET", "/dummy/7", nil)
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -90,7 +99,7 @@ func TestRetrieveNotFound(t *testing.T) {
 	setupDb(0)
 	defer destroyDb()
 
-	req, err := http.NewRequest("GET", "/dummy/7", strings.NewReader(""))
+	req, err := http.NewRequest("GET", "/dummy/7", nil)
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -105,7 +114,7 @@ func TestRetrieveBadId(t *testing.T) {
 	setupDb(0)
 	defer destroyDb()
 
-	req, err := http.NewRequest("GET", "/dummy/a", strings.NewReader(""))
+	req, err := http.NewRequest("GET", "/dummy/a", nil)
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -142,6 +151,30 @@ func TestUpdateOk(t *testing.T) {
 
 	assert.Equal(t, 1, obj.ID)
 	assert.Equal(t, "title_new", obj.Title)
+}
+
+func TestUpdateEmpty(t *testing.T) {
+
+	setupDb(1)
+	defer destroyDb()
+
+	req, err := http.NewRequest("PATCH", "/dummy/1", strings.NewReader(""))
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	rec := serveHTTP(req)
+
+	assert.Equal(t, http.StatusBadRequest, rec.Code)
+
+	req, err = http.NewRequest("PATCH", "/dummy/", nil)
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	rec = serveHTTP(req)
+
+	assert.Equal(t, http.StatusMethodNotAllowed, rec.Code)
 }
 
 func TestUpdateBadId(t *testing.T) {
@@ -224,7 +257,7 @@ func TestDeleteOk(t *testing.T) {
 	setupDb(1)
 	defer destroyDb()
 
-	req, err := http.NewRequest("DELETE", "/dummy/1", strings.NewReader(""))
+	req, err := http.NewRequest("DELETE", "/dummy/1", nil)
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -239,7 +272,7 @@ func TestDeleteBadId(t *testing.T) {
 	setupDb(1)
 	defer destroyDb()
 
-	req, err := http.NewRequest("DELETE", "/dummy/a", strings.NewReader(""))
+	req, err := http.NewRequest("DELETE", "/dummy/a", nil)
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -254,7 +287,7 @@ func TestDeleteInexistent(t *testing.T) {
 	setupDb(0)
 	defer destroyDb()
 
-	req, err := http.NewRequest("DELETE", "/dummy/1", strings.NewReader(""))
+	req, err := http.NewRequest("DELETE", "/dummy/1", nil)
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -271,7 +304,7 @@ func TestDeleteInvalid(t *testing.T) {
 
 	db.Create(&Dummy{ID: 1, Title: "title", Valid: false})
 
-	req, err := http.NewRequest("DELETE", "/dummy/1", strings.NewReader(""))
+	req, err := http.NewRequest("DELETE", "/dummy/1", nil)
 	if err != nil {
 		t.Fatal(err)
 	}

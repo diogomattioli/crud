@@ -3,7 +3,6 @@ package handler
 import (
 	"bytes"
 	"net/http"
-	"strings"
 	"testing"
 
 	"github.com/stretchr/testify/assert"
@@ -105,7 +104,7 @@ func TestAuthListOk(t *testing.T) {
 	setupDb(1)
 	defer destroyDb()
 
-	req, err := http.NewRequest("GET", "/auth/dummy/", strings.NewReader(""))
+	req, err := http.NewRequest("GET", "/auth/dummy/", nil)
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -124,7 +123,7 @@ func TestAuthWrongToken(t *testing.T) {
 	setupDb(1)
 	defer destroyDb()
 
-	req, err := http.NewRequest("GET", "/auth/dummy/", strings.NewReader(""))
+	req, err := http.NewRequest("GET", "/auth/dummy/", nil)
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -143,7 +142,7 @@ func TestAuthEmpty(t *testing.T) {
 	setupDb(1)
 	defer destroyDb()
 
-	req, err := http.NewRequest("GET", "/auth/dummy/", strings.NewReader(""))
+	req, err := http.NewRequest("GET", "/auth/dummy/", nil)
 	if err != nil {
 		t.Fatal(err)
 	}
