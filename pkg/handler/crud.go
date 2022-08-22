@@ -14,7 +14,7 @@ func Create[T data.CreateValidator](w http.ResponseWriter, r *http.Request) {
 
 	var obj T
 
-	err := json.NewDecoder(r.Body).Decode(obj)
+	err := json.NewDecoder(r.Body).Decode(&obj)
 	if err != nil {
 		w.WriteHeader(http.StatusBadRequest)
 		return
@@ -25,7 +25,7 @@ func Create[T data.CreateValidator](w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	res := db.Create(obj)
+	res := db.Create(&obj)
 	if res.RowsAffected == 0 {
 		w.WriteHeader(http.StatusNotFound)
 		return
@@ -50,7 +50,7 @@ func Retrieve[T any](w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	res := db.First(obj, id)
+	res := db.First(&obj, id)
 	if res.RowsAffected == 0 {
 		w.WriteHeader(http.StatusNotFound)
 		return
@@ -75,7 +75,7 @@ func Update[T data.UpdateValidator[T]](w http.ResponseWriter, r *http.Request) {
 
 	var obj T
 
-	err = json.NewDecoder(r.Body).Decode(obj)
+	err = json.NewDecoder(r.Body).Decode(&obj)
 	if err != nil {
 		w.WriteHeader(http.StatusBadRequest)
 		return
@@ -83,7 +83,7 @@ func Update[T data.UpdateValidator[T]](w http.ResponseWriter, r *http.Request) {
 
 	var old T
 
-	res := db.First(old, id)
+	res := db.First(&old, id)
 	if res.RowsAffected == 0 {
 		w.WriteHeader(http.StatusNotFound)
 		return
@@ -94,7 +94,7 @@ func Update[T data.UpdateValidator[T]](w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	res = db.Save(obj)
+	res = db.Save(&obj)
 	if res.RowsAffected == 0 {
 		w.WriteHeader(http.StatusNotFound)
 		return
@@ -119,7 +119,7 @@ func Delete[T data.DeleteValidator](w http.ResponseWriter, r *http.Request) {
 
 	var obj T
 
-	res := db.First(obj, id)
+	res := db.First(&obj, id)
 	if res.RowsAffected == 0 {
 		w.WriteHeader(http.StatusNotFound)
 		return
