@@ -94,7 +94,7 @@ func serveHTTPAuth(req *http.Request) *httptest.ResponseRecorder {
 	router.HandleFunc("/login/", Login).Methods("POST")
 	subrouter := router.PathPrefix("/auth").Subrouter()
 	subrouter.Use(Auth)
-	subrouter.HandleFunc("/dummy/", List[Dummy]).Methods("GET")
+	subrouter.HandleFunc("/dummy/", func(w http.ResponseWriter, r *http.Request) {}).Methods("GET")
 	router.ServeHTTP(rec, req)
 
 	return rec
