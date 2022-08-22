@@ -3,7 +3,6 @@ package handler
 import (
 	"encoding/json"
 	"net/http"
-	"net/http/httptest"
 	"strings"
 	"testing"
 
@@ -20,9 +19,7 @@ func TestListEmpty(t *testing.T) {
 		t.Fatal(err)
 	}
 
-	rec := httptest.NewRecorder()
-	handler := http.HandlerFunc(List[Dummy])
-	handler.ServeHTTP(rec, req)
+	rec := serveHTTP(req)
 
 	assert.Equal(t, http.StatusNotFound, rec.Code)
 }
@@ -37,9 +34,7 @@ func TestListNoParams(t *testing.T) {
 		t.Fatal(err)
 	}
 
-	rec := httptest.NewRecorder()
-	handler := http.HandlerFunc(List[Dummy])
-	handler.ServeHTTP(rec, req)
+	rec := serveHTTP(req)
 
 	assert.Equal(t, http.StatusOK, rec.Code)
 	assert.Equal(t, "1", rec.Header().Get("X-Paging-Page"))
@@ -68,9 +63,7 @@ func TestList2ndPage(t *testing.T) {
 		t.Fatal(err)
 	}
 
-	rec := httptest.NewRecorder()
-	handler := http.HandlerFunc(List[Dummy])
-	handler.ServeHTTP(rec, req)
+	rec := serveHTTP(req)
 
 	assert.Equal(t, http.StatusOK, rec.Code)
 	assert.Equal(t, "2", rec.Header().Get("X-Paging-Page"))
@@ -99,9 +92,7 @@ func TestList25RecordsPage(t *testing.T) {
 		t.Fatal(err)
 	}
 
-	rec := httptest.NewRecorder()
-	handler := http.HandlerFunc(List[Dummy])
-	handler.ServeHTTP(rec, req)
+	rec := serveHTTP(req)
 
 	assert.Equal(t, http.StatusOK, rec.Code)
 	assert.Equal(t, "1", rec.Header().Get("X-Paging-Page"))
@@ -130,9 +121,7 @@ func TestList1Page(t *testing.T) {
 		t.Fatal(err)
 	}
 
-	rec := httptest.NewRecorder()
-	handler := http.HandlerFunc(List[Dummy])
-	handler.ServeHTTP(rec, req)
+	rec := serveHTTP(req)
 
 	assert.Equal(t, http.StatusOK, rec.Code)
 	assert.Equal(t, "1", rec.Header().Get("X-Paging-Page"))
@@ -161,9 +150,7 @@ func TestListRecordsBadRequest(t *testing.T) {
 		t.Fatal(err)
 	}
 
-	rec := httptest.NewRecorder()
-	handler := http.HandlerFunc(List[Dummy])
-	handler.ServeHTTP(rec, req)
+	rec := serveHTTP(req)
 
 	assert.Equal(t, http.StatusBadRequest, rec.Code)
 
@@ -172,9 +159,7 @@ func TestListRecordsBadRequest(t *testing.T) {
 		t.Fatal(err)
 	}
 
-	rec = httptest.NewRecorder()
-	handler = http.HandlerFunc(List[Dummy])
-	handler.ServeHTTP(rec, req)
+	rec = serveHTTP(req)
 
 	assert.Equal(t, http.StatusBadRequest, rec.Code)
 
@@ -183,9 +168,7 @@ func TestListRecordsBadRequest(t *testing.T) {
 		t.Fatal(err)
 	}
 
-	rec = httptest.NewRecorder()
-	handler = http.HandlerFunc(List[Dummy])
-	handler.ServeHTTP(rec, req)
+	rec = serveHTTP(req)
 
 	assert.Equal(t, http.StatusBadRequest, rec.Code)
 }
@@ -200,9 +183,7 @@ func TestListPageBadRequest(t *testing.T) {
 		t.Fatal(err)
 	}
 
-	rec := httptest.NewRecorder()
-	handler := http.HandlerFunc(List[Dummy])
-	handler.ServeHTTP(rec, req)
+	rec := serveHTTP(req)
 
 	assert.Equal(t, http.StatusBadRequest, rec.Code)
 
@@ -211,9 +192,7 @@ func TestListPageBadRequest(t *testing.T) {
 		t.Fatal(err)
 	}
 
-	rec = httptest.NewRecorder()
-	handler = http.HandlerFunc(List[Dummy])
-	handler.ServeHTTP(rec, req)
+	rec = serveHTTP(req)
 
 	assert.Equal(t, http.StatusBadRequest, rec.Code)
 
@@ -222,9 +201,7 @@ func TestListPageBadRequest(t *testing.T) {
 		t.Fatal(err)
 	}
 
-	rec = httptest.NewRecorder()
-	handler = http.HandlerFunc(List[Dummy])
-	handler.ServeHTTP(rec, req)
+	rec = serveHTTP(req)
 
 	assert.Equal(t, http.StatusBadRequest, rec.Code)
 }
@@ -239,9 +216,7 @@ func TestListIds(t *testing.T) {
 		t.Fatal(err)
 	}
 
-	rec := httptest.NewRecorder()
-	handler := http.HandlerFunc(List[Dummy])
-	handler.ServeHTTP(rec, req)
+	rec := serveHTTP(req)
 
 	assert.Equal(t, http.StatusOK, rec.Code)
 	assert.Equal(t, "1", rec.Header().Get("X-Paging-Page"))
@@ -272,9 +247,7 @@ func TestListSearch(t *testing.T) {
 		t.Fatal(err)
 	}
 
-	rec := httptest.NewRecorder()
-	handler := http.HandlerFunc(List[Dummy])
-	handler.ServeHTTP(rec, req)
+	rec := serveHTTP(req)
 
 	assert.Equal(t, http.StatusOK, rec.Code)
 	assert.Equal(t, "1", rec.Header().Get("X-Paging-Page"))
@@ -305,9 +278,7 @@ func TestListSearchMultiple(t *testing.T) {
 		t.Fatal(err)
 	}
 
-	rec := httptest.NewRecorder()
-	handler := http.HandlerFunc(List[Dummy])
-	handler.ServeHTTP(rec, req)
+	rec := serveHTTP(req)
 
 	assert.Equal(t, http.StatusOK, rec.Code)
 	assert.Equal(t, "1", rec.Header().Get("X-Paging-Page"))
@@ -341,9 +312,7 @@ func TestListOrder(t *testing.T) {
 		t.Fatal(err)
 	}
 
-	rec := httptest.NewRecorder()
-	handler := http.HandlerFunc(List[Dummy])
-	handler.ServeHTTP(rec, req)
+	rec := serveHTTP(req)
 
 	assert.Equal(t, http.StatusOK, rec.Code)
 	assert.Equal(t, "1", rec.Header().Get("X-Paging-Page"))
