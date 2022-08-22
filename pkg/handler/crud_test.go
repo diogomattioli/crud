@@ -73,6 +73,22 @@ func TestCreateNotValid(t *testing.T) {
 	assert.Equal(t, http.StatusUnprocessableEntity, rec.Code)
 }
 
+func TestCreateBadJson(t *testing.T) {
+
+	setupDb(1)
+	defer destroyDb()
+
+	req, err := http.NewRequest("POST", "/dummy/", strings.NewReader("{\"id\":1,\"title\":\"title_new\":"))
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	req.Header.Set("Content-Type", "application/json")
+	rec := serveHTTP(req)
+
+	assert.Equal(t, http.StatusBadRequest, rec.Code)
+}
+
 func TestCreateNotJson(t *testing.T) {
 
 	setupDb(0)
