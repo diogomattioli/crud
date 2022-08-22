@@ -71,6 +71,8 @@ func TestLoginNoLoginPass(t *testing.T) {
 		t.Fatal(err)
 	}
 
+	req.Header.Set("Content-Type", header)
+
 	rec = serveHTTPAuth(req)
 
 	assert.Equal(t, http.StatusBadRequest, rec.Code)
@@ -95,6 +97,31 @@ func TestLoginAuthenticaionFail(t *testing.T) {
 	rec := serveHTTPAuth(req)
 
 	assert.Equal(t, http.StatusUnauthorized, rec.Code)
+}
+
+func TestLoginNotFormData(t *testing.T) {
+
+	SetAuthenticator(&MockAuth{})
+
+	body, _, err := formData(map[string]string{"user": "a", "pass": "a"})
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	req, err := http.NewRequest("POST", "/login/", bytes.NewReader(body))
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	rec := serveHTTPAuth(req)
+
+	assert.Equal(t, http.StatusUnsupportedMediaType, rec.Code)
+
+	req.Header.Set("Content-Type", "application/json")
+
+	rec = serveHTTPAuth(req)
+
+	assert.Equal(t, http.StatusUnsupportedMediaType, rec.Code)
 }
 
 func TestAuthListOk(t *testing.T) {

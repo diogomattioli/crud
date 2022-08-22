@@ -2,6 +2,7 @@ package handler
 
 import (
 	"net/http"
+	"strings"
 
 	"github.com/diogomattioli/crud/pkg/data"
 )
@@ -13,6 +14,11 @@ func SetAuthenticator(_auth data.Authenticator) {
 }
 
 func Login(w http.ResponseWriter, r *http.Request) {
+
+	if !strings.HasPrefix(r.Header.Get("Content-Type"), "multipart/form-data") {
+		w.WriteHeader(http.StatusUnsupportedMediaType)
+		return
+	}
 
 	user := r.FormValue("user")
 	pass := r.FormValue("pass")
