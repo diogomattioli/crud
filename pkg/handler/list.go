@@ -115,5 +115,6 @@ func List[T any](w http.ResponseWriter, r *http.Request) {
 	w.Header().Add("X-Paging-RecordsPerPage", fmt.Sprint(recordsPerPage))
 	w.Header().Add("X-Paging-MaxRecordsPerPage", fmt.Sprint(maxRecordsPerPage))
 
+	w.Header().Set("Content-Type", "application/json")
 	fmt.Fprintf(w, "%v", string(bytes))
 }

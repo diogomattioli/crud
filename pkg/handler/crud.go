@@ -14,6 +14,11 @@ func Create[T data.CreateValidator](w http.ResponseWriter, r *http.Request) {
 
 	var obj T
 
+	if r.Header.Get("Content-Type") != "application/json" {
+		w.WriteHeader(http.StatusUnsupportedMediaType)
+		return
+	}
+
 	if r.Body == nil {
 		w.WriteHeader(http.StatusBadRequest)
 		return
@@ -42,6 +47,7 @@ func Create[T data.CreateValidator](w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	w.Header().Set("Content-Type", "application/json")
 	fmt.Fprintf(w, "%v", string(bytes))
 }
 
@@ -67,6 +73,7 @@ func Retrieve[T any](w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	w.Header().Set("Content-Type", "application/json")
 	fmt.Fprintf(w, "%v", string(bytes))
 }
 
@@ -79,6 +86,11 @@ func Update[T data.UpdateValidator[T]](w http.ResponseWriter, r *http.Request) {
 	}
 
 	var obj T
+
+	if r.Header.Get("Content-Type") != "application/json" {
+		w.WriteHeader(http.StatusUnsupportedMediaType)
+		return
+	}
 
 	if r.Body == nil {
 		w.WriteHeader(http.StatusBadRequest)
@@ -116,6 +128,7 @@ func Update[T data.UpdateValidator[T]](w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	w.Header().Set("Content-Type", "application/json")
 	fmt.Fprintf(w, "%v", string(bytes))
 }
 

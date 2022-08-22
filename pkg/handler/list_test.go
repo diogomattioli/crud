@@ -36,6 +36,7 @@ func TestListNoParams(t *testing.T) {
 	rec := serveHTTP(req)
 
 	assert.Equal(t, http.StatusOK, rec.Code)
+	assert.Equal(t, "application/json", rec.Header().Get("Content-Type"))
 	assert.Equal(t, "1", rec.Header().Get("X-Paging-Page"))
 	assert.Equal(t, "5", rec.Header().Get("X-Paging-Pages"))
 	assert.Equal(t, "250", rec.Header().Get("X-Paging-Total"))
@@ -65,6 +66,7 @@ func TestList2ndPage(t *testing.T) {
 	rec := serveHTTP(req)
 
 	assert.Equal(t, http.StatusOK, rec.Code)
+	assert.Equal(t, "application/json", rec.Header().Get("Content-Type"))
 	assert.Equal(t, "2", rec.Header().Get("X-Paging-Page"))
 	assert.Equal(t, "5", rec.Header().Get("X-Paging-Pages"))
 	assert.Equal(t, "250", rec.Header().Get("X-Paging-Total"))
@@ -94,6 +96,7 @@ func TestList25RecordsPage(t *testing.T) {
 	rec := serveHTTP(req)
 
 	assert.Equal(t, http.StatusOK, rec.Code)
+	assert.Equal(t, "application/json", rec.Header().Get("Content-Type"))
 	assert.Equal(t, "1", rec.Header().Get("X-Paging-Page"))
 	assert.Equal(t, "10", rec.Header().Get("X-Paging-Pages"))
 	assert.Equal(t, "250", rec.Header().Get("X-Paging-Total"))
@@ -123,6 +126,7 @@ func TestList1Page(t *testing.T) {
 	rec := serveHTTP(req)
 
 	assert.Equal(t, http.StatusOK, rec.Code)
+	assert.Equal(t, "application/json", rec.Header().Get("Content-Type"))
 	assert.Equal(t, "1", rec.Header().Get("X-Paging-Page"))
 	assert.Equal(t, "1", rec.Header().Get("X-Paging-Pages"))
 	assert.Equal(t, "10", rec.Header().Get("X-Paging-Total"))
@@ -218,6 +222,7 @@ func TestListIds(t *testing.T) {
 	rec := serveHTTP(req)
 
 	assert.Equal(t, http.StatusOK, rec.Code)
+	assert.Equal(t, "application/json", rec.Header().Get("Content-Type"))
 	assert.Equal(t, "1", rec.Header().Get("X-Paging-Page"))
 	assert.Equal(t, "1", rec.Header().Get("X-Paging-Pages"))
 	assert.Equal(t, "3", rec.Header().Get("X-Paging-Total"))
@@ -249,6 +254,7 @@ func TestListSearch(t *testing.T) {
 	rec := serveHTTP(req)
 
 	assert.Equal(t, http.StatusOK, rec.Code)
+	assert.Equal(t, "application/json", rec.Header().Get("Content-Type"))
 	assert.Equal(t, "1", rec.Header().Get("X-Paging-Page"))
 	assert.Equal(t, "1", rec.Header().Get("X-Paging-Pages"))
 	assert.Equal(t, "3", rec.Header().Get("X-Paging-Total"))
@@ -280,6 +286,7 @@ func TestListSearchMultiple(t *testing.T) {
 	rec := serveHTTP(req)
 
 	assert.Equal(t, http.StatusOK, rec.Code)
+	assert.Equal(t, "application/json", rec.Header().Get("Content-Type"))
 	assert.Equal(t, "1", rec.Header().Get("X-Paging-Page"))
 	assert.Equal(t, "1", rec.Header().Get("X-Paging-Pages"))
 	assert.Equal(t, "6", rec.Header().Get("X-Paging-Total"))
@@ -314,6 +321,7 @@ func TestListOrder(t *testing.T) {
 	rec := serveHTTP(req)
 
 	assert.Equal(t, http.StatusOK, rec.Code)
+	assert.Equal(t, "application/json", rec.Header().Get("Content-Type"))
 	assert.Equal(t, "1", rec.Header().Get("X-Paging-Page"))
 	assert.Equal(t, "1", rec.Header().Get("X-Paging-Pages"))
 	assert.Equal(t, "5", rec.Header().Get("X-Paging-Total"))
