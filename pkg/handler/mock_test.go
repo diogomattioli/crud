@@ -110,12 +110,12 @@ func formData(values map[string]string) ([]byte, string, error) {
 
 		fw, err := writer.CreateFormField(key)
 		if err != nil {
-			return []byte{}, "", nil
+			return []byte{}, "", err
 		}
 
 		_, err = io.Copy(fw, strings.NewReader(value))
 		if err != nil {
-			return []byte{}, "", nil
+			return []byte{}, "", err
 		}
 	}
 
