@@ -17,15 +17,15 @@ type DeleteValidator interface {
 type Validate[T any] struct {
 }
 
-func (Validate[T]) IsValidCreate() bool {
+func (*Validate[T]) IsValidCreate() bool {
 	return true
 }
 
-func (v Validate[T]) IsValidUpdate(T) bool {
+func (v *Validate[T]) IsValidUpdate(T) bool {
 	return v.IsValidCreate()
 }
 
-func (Validate[T]) IsValidDelete() bool {
+func (*Validate[T]) IsValidDelete() bool {
 	return true
 }
 
