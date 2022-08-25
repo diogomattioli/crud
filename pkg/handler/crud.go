@@ -2,9 +2,12 @@ package handler
 
 import (
 	"encoding/json"
+	"errors"
 	"fmt"
 	"net/http"
+	"reflect"
 	"strconv"
+	"strings"
 
 	"github.com/diogomattioli/crud/pkg/data"
 	"github.com/gorilla/mux"
@@ -111,6 +114,12 @@ func Update[T data.UpdateValidator[T]](w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	primaryKey, err := getPrimaryKey(obj)
+	if err != nil || primaryKey != id {
+		w.WriteHeader(http.StatusBadRequest)
+		return
+	}
+
 	if !obj.IsValidUpdate(old) {
 		w.WriteHeader(http.StatusUnprocessableEntity)
 		return
@@ -158,4 +167,23 @@ func Delete[T data.DeleteValidator](w http.ResponseWriter, r *http.Request) {
 		w.WriteHeader(http.StatusNotFound)
 		return
 	}
+}
+
+func getPrimaryKey(obj any) (int, error) {
+
+	ty := reflect.TypeOf(obj).Elem()
+	for i := 0; i < ty.NumField(); i++ {
+		if ty.Field(i).Type.Name() == "int" && strings.Contains(ty.Field(i).Tag.Get("gorm"), "primaryKey") {
+
+			value := reflect.ValueOf(obj)
+
+			if value.Type().Kind() == reflect.Ptr {
+				return int(value.Elem().Field(i).Int()), nil
+			}
+
+			return int(value.Field(i).Int()), nil
+		}
+	}
+
+	return 0, errors.New("not found")
 }

@@ -309,7 +309,7 @@ func TestUpdateInvalid(t *testing.T) {
 	assert.Equal(t, http.StatusUnprocessableEntity, rec.Code)
 }
 
-func TestUpdateUnmatchingId(t *testing.T) {
+func TestUpdateMismatchingId(t *testing.T) {
 
 	setupDb(1)
 	defer destroyDb()
