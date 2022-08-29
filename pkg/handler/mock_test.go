@@ -32,6 +32,25 @@ func (o *Dummy) IsValidDelete() bool {
 	return o.Valid
 }
 
+type SubDummy struct {
+	ID    int    `json:"id" gorm:"primaryKey"`
+	Title string `json:"title"`
+	Valid bool   `json:"valid"`
+	Dummy int    `json:"id_dummy"`
+}
+
+func (o *SubDummy) IsValidCreate() bool {
+	return o.Valid
+}
+
+func (o *SubDummy) IsValidUpdate(old *SubDummy) bool {
+	return o.Valid
+}
+
+func (o *SubDummy) IsValidDelete() bool {
+	return o.Valid
+}
+
 type MockAuth struct {
 	shouldFail bool
 }
@@ -56,9 +75,12 @@ func setupDb(quantity int) {
 	}
 
 	db.AutoMigrate(&Dummy{})
+	db.AutoMigrate(&SubDummy{})
 
 	for i := 1; i <= quantity; i++ {
 		db.Create(&Dummy{ID: i, Title: fmt.Sprintf("title%v", quantity-i+1), Valid: true})
+		db.Create(&SubDummy{ID: i*2 - 1, Title: fmt.Sprintf("subtitle%v", quantity-i+1), Valid: true, Dummy: i})
+		db.Create(&SubDummy{ID: i * 2, Title: fmt.Sprintf("subtitle%v", quantity-i+1), Valid: true, Dummy: i})
 	}
 
 	SetDatabase(db)
@@ -76,11 +98,19 @@ func serveHTTP(req *http.Request) *httptest.ResponseRecorder {
 	rec := httptest.NewRecorder()
 
 	router := mux.NewRouter().StrictSlash(true)
+
 	router.HandleFunc("/dummy/", List[Dummy]).Methods("GET")
 	router.HandleFunc("/dummy/", Create[*Dummy]).Methods("POST")
 	router.HandleFunc("/dummy/{id}", Retrieve[Dummy]).Methods("GET")
 	router.HandleFunc("/dummy/{id}", Update[*Dummy]).Methods("PUT")
 	router.HandleFunc("/dummy/{id}", Delete[*Dummy]).Methods("DELETE")
+
+	router.HandleFunc("/dummy/{id_dummy}/subdummy/", List[SubDummy]).Methods("GET")
+	router.HandleFunc("/dummy/{id_dummy}/subdummy/", Create[*SubDummy]).Methods("POST")
+	router.HandleFunc("/dummy/{id_dummy}/subdummy/{id}", Retrieve[SubDummy]).Methods("GET")
+	router.HandleFunc("/dummy/{id_dummy}/subdummy/{id}", Update[*SubDummy]).Methods("PATCH")
+	router.HandleFunc("/dummy/{id_dummy}/subdummy/{id}", Delete[*SubDummy]).Methods("DELETE")
+
 	router.ServeHTTP(rec, req)
 
 	return rec

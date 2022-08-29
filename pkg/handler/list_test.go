@@ -338,3 +338,35 @@ func TestListOrder(t *testing.T) {
 	assert.Equal(t, 5, slice[0].ID)
 	assert.Equal(t, 1, slice[4].ID)
 }
+
+func TestListSubNoParams(t *testing.T) {
+
+	setupDb(250)
+	defer destroyDb()
+
+	req, err := http.NewRequest("GET", "/dummy/23/subdummy/", nil)
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	rec := serveHTTP(req)
+
+	assert.Equal(t, http.StatusOK, rec.Code)
+	assert.Equal(t, "application/json", rec.Header().Get("Content-Type"))
+	assert.Equal(t, "1", rec.Header().Get("X-Paging-Page"))
+	assert.Equal(t, "1", rec.Header().Get("X-Paging-Pages"))
+	assert.Equal(t, "2", rec.Header().Get("X-Paging-Total"))
+	assert.Equal(t, "50", rec.Header().Get("X-Paging-RecordsPerPage"))
+
+	var slice []SubDummy
+	err = json.NewDecoder(rec.Body).Decode(&slice)
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	assert.Equal(t, 2, len(slice))
+	assert.Equal(t, 45, slice[0].ID)
+	assert.Equal(t, 23, slice[0].Dummy)
+	assert.Equal(t, 46, slice[1].ID)
+	assert.Equal(t, 23, slice[1].Dummy)
+}

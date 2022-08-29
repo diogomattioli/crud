@@ -109,6 +109,46 @@ func TestCreateNotJson(t *testing.T) {
 	assert.Equal(t, http.StatusUnsupportedMediaType, rec.Code)
 }
 
+func TestCreateSubOk(t *testing.T) {
+
+	setupDb(2)
+	defer destroyDb()
+
+	req, err := http.NewRequest("POST", "/dummy/2/subdummy/", strings.NewReader("{\"id\":0,\"title\":\"title\",\"valid\":true,\"id_dummy\":100}"))
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	req.Header.Set("Content-Type", "application/json")
+	rec := serveHTTP(req)
+
+	assert.Equal(t, http.StatusOK, rec.Code)
+
+	var slice []SubDummy
+	db.Where(SubDummy{Dummy: 2}).Order("id").Find(&slice)
+
+	assert.Equal(t, 3, len(slice))
+	assert.Equal(t, 5, slice[2].ID)
+	assert.Equal(t, 2, slice[2].Dummy)
+	assert.Equal(t, "title", slice[2].Title)
+}
+
+func TestCreateSubNotFound(t *testing.T) {
+
+	setupDb(0)
+	defer destroyDb()
+
+	req, err := http.NewRequest("POST", "/dummy/1/subdummy/", strings.NewReader("{\"id\":0,\"title\":\"title\",\"valid\":true}"))
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	req.Header.Set("Content-Type", "application/json")
+	rec := serveHTTP(req)
+
+	assert.Equal(t, http.StatusNoContent, rec.Code)
+}
+
 func TestRetrieveOk(t *testing.T) {
 
 	setupDb(10)
@@ -162,6 +202,32 @@ func TestRetrieveBadId(t *testing.T) {
 	rec := serveHTTP(req)
 
 	assert.Equal(t, http.StatusBadRequest, rec.Code)
+}
+
+func TestRetrieveSubOk(t *testing.T) {
+
+	setupDb(10)
+	defer destroyDb()
+
+	req, err := http.NewRequest("GET", "/dummy/7/subdummy/14", nil)
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	rec := serveHTTP(req)
+
+	assert.Equal(t, http.StatusOK, rec.Code)
+
+	var obj SubDummy
+
+	err = json.NewDecoder(rec.Body).Decode(&obj)
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	assert.Equal(t, 14, obj.ID)
+	assert.Equal(t, 7, obj.Dummy)
+	assert.Equal(t, "subtitle4", obj.Title)
 }
 
 func TestUpdateOk(t *testing.T) {
@@ -311,10 +377,10 @@ func TestUpdateInvalid(t *testing.T) {
 
 func TestUpdateMismatchingId(t *testing.T) {
 
-	setupDb(1)
+	setupDb(10)
 	defer destroyDb()
 
-	req, err := http.NewRequest("PUT", "/dummy/1", strings.NewReader("{\"id\":2,\"title\":\"title_new\",\"valid\":true}"))
+	req, err := http.NewRequest("PATCH", "/dummy/6", strings.NewReader("{\"id\":2,\"title\":\"title_new\",\"valid\":true}"))
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -322,7 +388,53 @@ func TestUpdateMismatchingId(t *testing.T) {
 	req.Header.Set("Content-Type", "application/json")
 	rec := serveHTTP(req)
 
-	assert.Equal(t, http.StatusBadRequest, rec.Code)
+	assert.Equal(t, http.StatusOK, rec.Code)
+
+	var obj Dummy
+
+	db.First(&obj, 6)
+	assert.Equal(t, 6, obj.ID)
+	assert.Equal(t, "title_new", obj.Title)
+
+	err = json.NewDecoder(rec.Body).Decode(&obj)
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	assert.Equal(t, 6, obj.ID)
+	assert.Equal(t, "title_new", obj.Title)
+}
+
+func TestUpdateSubOk(t *testing.T) {
+
+	setupDb(10)
+	defer destroyDb()
+
+	req, err := http.NewRequest("PATCH", "/dummy/5/subdummy/10", strings.NewReader("{\"id\":0,\"title\":\"title_new\",\"valid\":true}"))
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	var obj SubDummy
+
+	req.Header.Set("Content-Type", "application/json")
+	rec := serveHTTP(req)
+
+	assert.Equal(t, http.StatusOK, rec.Code)
+
+	err = json.NewDecoder(rec.Body).Decode(&obj)
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	assert.Equal(t, 10, obj.ID)
+	assert.Equal(t, 5, obj.Dummy)
+	assert.Equal(t, "title_new", obj.Title)
+
+	db.Where(SubDummy{ID: 10, Dummy: 5}).First(&obj)
+	assert.Equal(t, 10, obj.ID)
+	assert.Equal(t, 5, obj.Dummy)
+	assert.Equal(t, "title_new", obj.Title)
 }
 
 func TestDeleteOk(t *testing.T) {
@@ -385,4 +497,27 @@ func TestDeleteInvalid(t *testing.T) {
 	rec := serveHTTP(req)
 
 	assert.Equal(t, http.StatusUnprocessableEntity, rec.Code)
+}
+
+func TestDeleteSubOk(t *testing.T) {
+
+	setupDb(10)
+	defer destroyDb()
+
+	req, err := http.NewRequest("DELETE", "/dummy/5/subdummy/10", nil)
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	rec := serveHTTP(req)
+
+	assert.Equal(t, http.StatusOK, rec.Code)
+
+	var slice []SubDummy
+
+	db.Where(SubDummy{Dummy: 5}).Find(&slice)
+	assert.Equal(t, 1, len(slice))
+	assert.Equal(t, 9, slice[0].ID)
+	assert.Equal(t, 5, slice[0].Dummy)
+	assert.Equal(t, "subtitle6", slice[0].Title)
 }
