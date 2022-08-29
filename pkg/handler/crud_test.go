@@ -149,6 +149,22 @@ func TestCreateSubNotFound(t *testing.T) {
 	assert.Equal(t, http.StatusNoContent, rec.Code)
 }
 
+func TestCreateMisconfigured(t *testing.T) {
+
+	setupDb(2)
+	defer destroyDb()
+
+	req, err := http.NewRequest("POST", "/misconfigured/2/subdummy/", strings.NewReader("{\"id\":0,\"title\":\"title\",\"valid\":true,\"id_dummy\":100}"))
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	req.Header.Set("Content-Type", "application/json")
+	rec := serveHTTP(req)
+
+	assert.Equal(t, http.StatusInternalServerError, rec.Code)
+}
+
 func TestRetrieveOk(t *testing.T) {
 
 	setupDb(10)
@@ -228,6 +244,21 @@ func TestRetrieveSubOk(t *testing.T) {
 	assert.Equal(t, 14, obj.ID)
 	assert.Equal(t, 7, obj.Dummy)
 	assert.Equal(t, "subtitle4", obj.Title)
+}
+
+func TestRetrieveMisconfigured(t *testing.T) {
+
+	setupDb(10)
+	defer destroyDb()
+
+	req, err := http.NewRequest("GET", "/misconfigured/7/subdummy/14", nil)
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	rec := serveHTTP(req)
+
+	assert.Equal(t, http.StatusInternalServerError, rec.Code)
 }
 
 func TestUpdateOk(t *testing.T) {
@@ -437,6 +468,22 @@ func TestUpdateSubOk(t *testing.T) {
 	assert.Equal(t, "title_new", obj.Title)
 }
 
+func TestUpdateMisconfigured(t *testing.T) {
+
+	setupDb(10)
+	defer destroyDb()
+
+	req, err := http.NewRequest("PATCH", "/misconfigured/5/subdummy/10", strings.NewReader("{\"id\":0,\"title\":\"title_new\",\"valid\":true}"))
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	req.Header.Set("Content-Type", "application/json")
+	rec := serveHTTP(req)
+
+	assert.Equal(t, http.StatusInternalServerError, rec.Code)
+}
+
 func TestDeleteOk(t *testing.T) {
 
 	setupDb(1)
@@ -520,4 +567,19 @@ func TestDeleteSubOk(t *testing.T) {
 	assert.Equal(t, 9, slice[0].ID)
 	assert.Equal(t, 5, slice[0].Dummy)
 	assert.Equal(t, "subtitle6", slice[0].Title)
+}
+
+func TestDeleteMisconfigured(t *testing.T) {
+
+	setupDb(10)
+	defer destroyDb()
+
+	req, err := http.NewRequest("DELETE", "/misconfigured/5/subdummy/10", nil)
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	rec := serveHTTP(req)
+
+	assert.Equal(t, http.StatusInternalServerError, rec.Code)
 }

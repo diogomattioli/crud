@@ -111,6 +111,12 @@ func serveHTTP(req *http.Request) *httptest.ResponseRecorder {
 	router.HandleFunc("/dummy/{id_dummy}/subdummy/{id}", Update[*SubDummy]).Methods("PATCH")
 	router.HandleFunc("/dummy/{id_dummy}/subdummy/{id}", Delete[*SubDummy]).Methods("DELETE")
 
+	router.HandleFunc("/misconfigured/{id_wrong}/subdummy/", List[SubDummy]).Methods("GET")
+	router.HandleFunc("/misconfigured/{id_wrong}/subdummy/", Create[*SubDummy]).Methods("POST")
+	router.HandleFunc("/misconfigured/{id_wrong}/subdummy/{id_wrong}", Retrieve[SubDummy]).Methods("GET")
+	router.HandleFunc("/misconfigured/{id_wrong}/subdummy/{id_wrong}", Update[*SubDummy]).Methods("PATCH")
+	router.HandleFunc("/misconfigured/{id_wrong}/subdummy/{id_wrong}", Delete[*SubDummy]).Methods("DELETE")
+
 	router.ServeHTTP(rec, req)
 
 	return rec

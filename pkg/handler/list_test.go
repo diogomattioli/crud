@@ -370,3 +370,18 @@ func TestListSubNoParams(t *testing.T) {
 	assert.Equal(t, 46, slice[1].ID)
 	assert.Equal(t, 23, slice[1].Dummy)
 }
+
+func TestListMisconfigured(t *testing.T) {
+
+	setupDb(250)
+	defer destroyDb()
+
+	req, err := http.NewRequest("GET", "/misconfigured/23/subdummy/", nil)
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	rec := serveHTTP(req)
+
+	assert.Equal(t, http.StatusInternalServerError, rec.Code)
+}
