@@ -383,5 +383,5 @@ func TestListMisconfigured(t *testing.T) {
 
 	rec := serveHTTP(req)
 
-	assert.Equal(t, http.StatusInternalServerError, rec.Code)
+	assert.Equal(t, http.StatusNotFound, rec.Code)
 }

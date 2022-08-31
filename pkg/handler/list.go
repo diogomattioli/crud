@@ -9,6 +9,7 @@ import (
 	"strconv"
 
 	"github.com/diogomattioli/crud/pkg/data"
+	"github.com/gorilla/mux"
 	"gorm.io/gorm"
 )
 
@@ -52,6 +53,26 @@ func order(db *gorm.DB, obj any, values url.Values) *gorm.DB {
 
 func List[T any](w http.ResponseWriter, r *http.Request) {
 
+	vars, err := data.VarsInt(mux.Vars(r))
+	if err != nil {
+		w.WriteHeader(http.StatusInternalServerError)
+		return
+	}
+
+	bytes, err := json.Marshal(vars)
+	if err != nil {
+		w.WriteHeader(http.StatusInternalServerError)
+		return
+	}
+
+	var where T
+
+	err = json.Unmarshal(bytes, &where)
+	if err != nil {
+		w.WriteHeader(http.StatusInternalServerError)
+		return
+	}
+
 	var slice []T
 	var obj T
 
@@ -66,13 +87,11 @@ func List[T any](w http.ResponseWriter, r *http.Request) {
 	// Filters
 
 	var total int64
-	innerDb.Model(obj).Count(&total)
+	innerDb.Model(obj).Where(where).Count(&total)
 	if total == 0 {
 		w.WriteHeader(http.StatusNotFound)
 		return
 	}
-
-	var err error
 
 	recordsPerPage := defaultRecordsPerPage
 	if data.Valid(r.URL.Query().Get("records")) {
@@ -97,13 +116,13 @@ func List[T any](w http.ResponseWriter, r *http.Request) {
 		}
 	}
 
-	res := innerDb.Offset((page - 1) * recordsPerPage).Limit(recordsPerPage).Find(&slice)
+	res := innerDb.Offset((page - 1) * recordsPerPage).Limit(recordsPerPage).Where(where).Find(&slice)
 	if res.RowsAffected == 0 {
 		w.WriteHeader(http.StatusNotFound)
 		return
 	}
 
-	bytes, err := json.Marshal(slice)
+	bytes, err = json.Marshal(slice)
 	if err != nil {
 		w.WriteHeader(http.StatusInternalServerError)
 		return
