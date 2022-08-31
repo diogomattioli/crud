@@ -11,16 +11,6 @@ import (
 
 func Create[T data.CreateValidator](w http.ResponseWriter, r *http.Request) {
 
-	vars, err := data.VarsInt(mux.Vars(r))
-	if err != nil {
-		w.WriteHeader(http.StatusBadRequest)
-		return
-	}
-
-	bytesVars, _ := json.Marshal(vars)
-	var where T
-	json.Unmarshal(bytesVars, &where)
-
 	if r.Header.Get("Content-Type") != "application/json" {
 		w.WriteHeader(http.StatusUnsupportedMediaType)
 		return
@@ -28,6 +18,26 @@ func Create[T data.CreateValidator](w http.ResponseWriter, r *http.Request) {
 
 	if r.Body == nil {
 		w.WriteHeader(http.StatusBadRequest)
+		return
+	}
+
+	vars, err := data.VarsInt(mux.Vars(r))
+	if err != nil {
+		w.WriteHeader(http.StatusInternalServerError)
+		return
+	}
+
+	bytes, err := json.Marshal(vars)
+	if err != nil {
+		w.WriteHeader(http.StatusInternalServerError)
+		return
+	}
+
+	var where T
+
+	err = json.Unmarshal(bytes, &where)
+	if err != nil {
+		w.WriteHeader(http.StatusInternalServerError)
 		return
 	}
 
@@ -39,7 +49,11 @@ func Create[T data.CreateValidator](w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	json.Unmarshal(bytesVars, &obj)
+	err = json.Unmarshal(bytes, &obj)
+	if err != nil {
+		w.WriteHeader(http.StatusInternalServerError)
+		return
+	}
 
 	if !obj.IsValidCreate() {
 		w.WriteHeader(http.StatusUnprocessableEntity)
@@ -52,7 +66,7 @@ func Create[T data.CreateValidator](w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	bytes, err := json.Marshal(obj)
+	bytes, err = json.Marshal(obj)
 	if err != nil {
 		w.WriteHeader(http.StatusInternalServerError)
 		return
@@ -66,13 +80,23 @@ func Retrieve[T any](w http.ResponseWriter, r *http.Request) {
 
 	vars, err := data.VarsInt(mux.Vars(r))
 	if err != nil {
-		w.WriteHeader(http.StatusBadRequest)
+		w.WriteHeader(http.StatusInternalServerError)
 		return
 	}
 
-	bytesVars, _ := json.Marshal(vars)
+	bytes, err := json.Marshal(vars)
+	if err != nil {
+		w.WriteHeader(http.StatusInternalServerError)
+		return
+	}
+
 	var where T
-	json.Unmarshal(bytesVars, &where)
+
+	err = json.Unmarshal(bytes, &where)
+	if err != nil {
+		w.WriteHeader(http.StatusInternalServerError)
+		return
+	}
 
 	var obj T
 
@@ -82,7 +106,7 @@ func Retrieve[T any](w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	bytes, err := json.Marshal(obj)
+	bytes, err = json.Marshal(obj)
 	if err != nil {
 		w.WriteHeader(http.StatusInternalServerError)
 		return
@@ -94,12 +118,6 @@ func Retrieve[T any](w http.ResponseWriter, r *http.Request) {
 
 func Update[T data.UpdateValidator[T]](w http.ResponseWriter, r *http.Request) {
 
-	vars, err := data.VarsInt(mux.Vars(r))
-	if err != nil {
-		w.WriteHeader(http.StatusBadRequest)
-		return
-	}
-
 	if r.Header.Get("Content-Type") != "application/json" {
 		w.WriteHeader(http.StatusUnsupportedMediaType)
 		return
@@ -110,9 +128,25 @@ func Update[T data.UpdateValidator[T]](w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	bytesVars, _ := json.Marshal(vars)
+	vars, err := data.VarsInt(mux.Vars(r))
+	if err != nil {
+		w.WriteHeader(http.StatusInternalServerError)
+		return
+	}
+
+	bytes, err := json.Marshal(vars)
+	if err != nil {
+		w.WriteHeader(http.StatusInternalServerError)
+		return
+	}
+
 	var where T
-	json.Unmarshal(bytesVars, &where)
+
+	err = json.Unmarshal(bytes, &where)
+	if err != nil {
+		w.WriteHeader(http.StatusInternalServerError)
+		return
+	}
 
 	var old T
 
@@ -130,7 +164,11 @@ func Update[T data.UpdateValidator[T]](w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	json.Unmarshal(bytesVars, &obj)
+	err = json.Unmarshal(bytes, &obj)
+	if err != nil {
+		w.WriteHeader(http.StatusInternalServerError)
+		return
+	}
 
 	if !obj.IsValidUpdate(old) {
 		w.WriteHeader(http.StatusUnprocessableEntity)
@@ -143,7 +181,7 @@ func Update[T data.UpdateValidator[T]](w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	bytes, err := json.Marshal(obj)
+	bytes, err = json.Marshal(obj)
 	if err != nil {
 		w.WriteHeader(http.StatusInternalServerError)
 		return
@@ -157,15 +195,25 @@ func Delete[T data.DeleteValidator](w http.ResponseWriter, r *http.Request) {
 
 	vars, err := data.VarsInt(mux.Vars(r))
 	if err != nil {
-		w.WriteHeader(http.StatusBadRequest)
+		w.WriteHeader(http.StatusInternalServerError)
+		return
+	}
+
+	bytes, err := json.Marshal(vars)
+	if err != nil {
+		w.WriteHeader(http.StatusInternalServerError)
+		return
+	}
+
+	var where T
+
+	err = json.Unmarshal(bytes, &where)
+	if err != nil {
+		w.WriteHeader(http.StatusInternalServerError)
 		return
 	}
 
 	var obj T
-
-	bytesVars, _ := json.Marshal(vars)
-	var where T
-	json.Unmarshal(bytesVars, &where)
 
 	res := db.Where(where).Or("1 != 1").First(&obj)
 	if res.RowsAffected == 0 {

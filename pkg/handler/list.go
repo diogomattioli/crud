@@ -55,13 +55,23 @@ func List[T any](w http.ResponseWriter, r *http.Request) {
 
 	vars, err := data.VarsInt(mux.Vars(r))
 	if err != nil {
-		w.WriteHeader(http.StatusBadRequest)
+		w.WriteHeader(http.StatusInternalServerError)
 		return
 	}
 
-	bytesVars, _ := json.Marshal(vars)
+	bytes, err := json.Marshal(vars)
+	if err != nil {
+		w.WriteHeader(http.StatusInternalServerError)
+		return
+	}
+
 	var where T
-	json.Unmarshal(bytesVars, &where)
+
+	err = json.Unmarshal(bytes, &where)
+	if err != nil {
+		w.WriteHeader(http.StatusInternalServerError)
+		return
+	}
 
 	var slice []T
 	var obj T
@@ -112,7 +122,7 @@ func List[T any](w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	bytes, err := json.Marshal(slice)
+	bytes, err = json.Marshal(slice)
 	if err != nil {
 		w.WriteHeader(http.StatusInternalServerError)
 		return
