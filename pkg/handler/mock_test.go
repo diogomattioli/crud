@@ -101,15 +101,15 @@ func serveHTTP(req *http.Request) *httptest.ResponseRecorder {
 
 	router.HandleFunc("/dummy/", List[Dummy]).Methods("GET")
 	router.HandleFunc("/dummy/", Create[*Dummy]).Methods("POST")
-	router.HandleFunc("/dummy/{id}", Retrieve[Dummy]).Methods("GET")
-	router.HandleFunc("/dummy/{id}", Update[*Dummy]).Methods("PATCH")
-	router.HandleFunc("/dummy/{id}", Delete[*Dummy]).Methods("DELETE")
+	router.HandleFunc("/dummy/{id:[0-9]+}", Retrieve[Dummy]).Methods("GET")
+	router.HandleFunc("/dummy/{id:[0-9]+}", Update[*Dummy]).Methods("PATCH")
+	router.HandleFunc("/dummy/{id:[0-9]+}", Delete[*Dummy]).Methods("DELETE")
 
-	router.HandleFunc("/dummy/{id_dummy}/subdummy/", List[SubDummy]).Methods("GET")
-	router.HandleFunc("/dummy/{id_dummy}/subdummy/", Create[*SubDummy]).Methods("POST")
-	router.HandleFunc("/dummy/{id_dummy}/subdummy/{id}", Retrieve[SubDummy]).Methods("GET")
-	router.HandleFunc("/dummy/{id_dummy}/subdummy/{id}", Update[*SubDummy]).Methods("PATCH")
-	router.HandleFunc("/dummy/{id_dummy}/subdummy/{id}", Delete[*SubDummy]).Methods("DELETE")
+	router.HandleFunc("/dummy/{id_dummy:[0-9]+}/subdummy/", List[SubDummy]).Methods("GET")
+	router.HandleFunc("/dummy/{id_dummy:[0-9]+}/subdummy/", Create[*SubDummy]).Methods("POST")
+	router.HandleFunc("/dummy/{id_dummy:[0-9]+}/subdummy/{id:[0-9]+}", Retrieve[SubDummy]).Methods("GET")
+	router.HandleFunc("/dummy/{id_dummy:[0-9]+}/subdummy/{id:[0-9]+}", Update[*SubDummy]).Methods("PATCH")
+	router.HandleFunc("/dummy/{id_dummy:[0-9]+}/subdummy/{id:[0-9]+}", Delete[*SubDummy]).Methods("DELETE")
 
 	router.HandleFunc("/misconfigured/{id_wrong}/subdummy/", List[SubDummy]).Methods("GET")
 	router.HandleFunc("/misconfigured/{id_wrong}/subdummy/", Create[*SubDummy]).Methods("POST")

@@ -217,7 +217,7 @@ func TestRetrieveBadId(t *testing.T) {
 
 	rec := serveHTTP(req)
 
-	assert.Equal(t, http.StatusBadRequest, rec.Code)
+	assert.Equal(t, http.StatusNotFound, rec.Code)
 }
 
 func TestRetrieveSubOk(t *testing.T) {
@@ -355,7 +355,7 @@ func TestUpdateBadId(t *testing.T) {
 	req.Header.Set("Content-Type", "application/json")
 	rec := serveHTTP(req)
 
-	assert.Equal(t, http.StatusBadRequest, rec.Code)
+	assert.Equal(t, http.StatusNotFound, rec.Code)
 }
 
 func TestUpdateBadJson(t *testing.T) {
@@ -511,7 +511,7 @@ func TestDeleteBadId(t *testing.T) {
 
 	rec := serveHTTP(req)
 
-	assert.Equal(t, http.StatusBadRequest, rec.Code)
+	assert.Equal(t, http.StatusNotFound, rec.Code)
 }
 
 func TestDeleteInexistent(t *testing.T) {
