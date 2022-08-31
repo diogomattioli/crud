@@ -162,7 +162,7 @@ func TestCreateMisconfigured(t *testing.T) {
 	req.Header.Set("Content-Type", "application/json")
 	rec := serveHTTP(req)
 
-	assert.Equal(t, http.StatusInternalServerError, rec.Code)
+	assert.Equal(t, http.StatusNotFound, rec.Code)
 }
 
 func TestRetrieveOk(t *testing.T) {
@@ -258,7 +258,7 @@ func TestRetrieveMisconfigured(t *testing.T) {
 
 	rec := serveHTTP(req)
 
-	assert.Equal(t, http.StatusInternalServerError, rec.Code)
+	assert.Equal(t, http.StatusNotFound, rec.Code)
 }
 
 func TestUpdateOk(t *testing.T) {
@@ -481,7 +481,7 @@ func TestUpdateMisconfigured(t *testing.T) {
 	req.Header.Set("Content-Type", "application/json")
 	rec := serveHTTP(req)
 
-	assert.Equal(t, http.StatusInternalServerError, rec.Code)
+	assert.Equal(t, http.StatusNotFound, rec.Code)
 }
 
 func TestDeleteOk(t *testing.T) {
@@ -581,5 +581,5 @@ func TestDeleteMisconfigured(t *testing.T) {
 
 	rec := serveHTTP(req)
 
-	assert.Equal(t, http.StatusInternalServerError, rec.Code)
+	assert.Equal(t, http.StatusNotFound, rec.Code)
 }

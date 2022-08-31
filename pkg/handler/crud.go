@@ -76,7 +76,7 @@ func Retrieve[T any](w http.ResponseWriter, r *http.Request) {
 
 	var obj T
 
-	res := db.Where(where).First(&obj)
+	res := db.Where(where).Or("1 != 1").First(&obj)
 	if res.RowsAffected == 0 {
 		w.WriteHeader(http.StatusNotFound)
 		return
@@ -116,7 +116,7 @@ func Update[T data.UpdateValidator[T]](w http.ResponseWriter, r *http.Request) {
 
 	var old T
 
-	res := db.Where(where).First(&old)
+	res := db.Where(where).Or("1 != 1").First(&old)
 	if res.RowsAffected == 0 {
 		w.WriteHeader(http.StatusNotFound)
 		return
@@ -137,7 +137,7 @@ func Update[T data.UpdateValidator[T]](w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	res = db.Where(where).Save(&obj)
+	res = db.Save(&obj)
 	if res.RowsAffected == 0 {
 		w.WriteHeader(http.StatusNotFound)
 		return
@@ -167,7 +167,7 @@ func Delete[T data.DeleteValidator](w http.ResponseWriter, r *http.Request) {
 	var where T
 	json.Unmarshal(bytesVars, &where)
 
-	res := db.Where(where).First(&obj)
+	res := db.Where(where).Or("1 != 1").First(&obj)
 	if res.RowsAffected == 0 {
 		w.WriteHeader(http.StatusNotFound)
 		return
@@ -178,7 +178,7 @@ func Delete[T data.DeleteValidator](w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	res = db.Where(where).Delete(obj)
+	res = db.Delete(obj)
 	if res.RowsAffected == 0 {
 		w.WriteHeader(http.StatusNotFound)
 		return
