@@ -102,7 +102,7 @@ func serveHTTP(req *http.Request) *httptest.ResponseRecorder {
 	router.HandleFunc("/dummy/", List[Dummy]).Methods("GET")
 	router.HandleFunc("/dummy/", Create[*Dummy]).Methods("POST")
 	router.HandleFunc("/dummy/{id}", Retrieve[Dummy]).Methods("GET")
-	router.HandleFunc("/dummy/{id}", Update[*Dummy]).Methods("PUT")
+	router.HandleFunc("/dummy/{id}", Update[*Dummy]).Methods("PATCH")
 	router.HandleFunc("/dummy/{id}", Delete[*Dummy]).Methods("DELETE")
 
 	router.HandleFunc("/dummy/{id_dummy}/subdummy/", List[SubDummy]).Methods("GET")
