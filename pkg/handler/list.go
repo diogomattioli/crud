@@ -4,9 +4,9 @@ import (
 	"encoding/json"
 	"fmt"
 	"net/http"
-	"net/url"
 	"reflect"
 	"strconv"
+	"strings"
 
 	"github.com/diogomattioli/crud/pkg/data"
 	"github.com/gorilla/mux"
@@ -14,11 +14,11 @@ import (
 )
 
 const (
-	defaultRecordsPerPage = 50
-	maxRecordsPerPage     = 250
+	maxLimit     = 250
+	defaultLimit = 50
 )
 
-func search(db *gorm.DB, obj any, values url.Values) *gorm.DB {
+func search(db *gorm.DB, obj any, query []string) *gorm.DB {
 
 	var fields []string
 
@@ -29,8 +29,8 @@ func search(db *gorm.DB, obj any, values url.Values) *gorm.DB {
 		}
 	}
 
-	for i := 0; i < len(values["search"]); i++ {
-		if str := values["search"][i]; data.Valid(str) {
+	for i := 0; i < len(query); i++ {
+		if str := query[i]; data.Valid(str) {
 			for _, field := range fields {
 				db = db.Or(fmt.Sprintf("LOWER(%s) LIKE LOWER(?)", data.ToSnakeCase(field)), "%"+str+"%")
 			}
@@ -40,12 +40,39 @@ func search(db *gorm.DB, obj any, values url.Values) *gorm.DB {
 	return db
 }
 
-func order(db *gorm.DB, obj any, values url.Values) *gorm.DB {
+func sort(db *gorm.DB, obj any, query string) *gorm.DB {
 
-	if order := values.Get("order"); data.Valid(order) {
-		if field, exists := reflect.TypeOf(obj).Elem().FieldByName(order); exists {
+	if data.Valid(query) {
+		if field, exists := reflect.TypeOf(obj).Elem().FieldByName(query); exists {
 			return db.Order(fmt.Sprintf("%s ASC", field.Name))
 		}
+	}
+
+	return db
+}
+
+func fields(db *gorm.DB, obj any, query string) *gorm.DB {
+
+	if query == "" {
+		return db
+	}
+
+	var fields []string
+
+	queries := strings.Split(strings.ReplaceAll(query, " ", ""), ",")
+
+	ty := reflect.TypeOf(obj).Elem()
+	for _, query := range queries {
+		for i := 0; i < ty.NumField(); i++ {
+			if ty.Field(i).Name == query {
+				fields = append(fields, ty.Field(i).Name)
+				break
+			}
+		}
+	}
+
+	if len(fields) > 0 {
+		return db.Select(fields)
 	}
 
 	return db
@@ -78,12 +105,11 @@ func List[T any](w http.ResponseWriter, r *http.Request) {
 
 	innerDb := db
 
+	URLQuery := r.URL.Query()
+
 	// Filters
-	if ids := r.URL.Query()["id"]; len(ids) > 0 {
-		innerDb = innerDb.Or(ids)
-	}
-	innerDb = search(innerDb, &obj, r.URL.Query())
-	innerDb = order(innerDb, &obj, r.URL.Query())
+	innerDb = search(innerDb, &obj, URLQuery["search"])
+	innerDb = sort(innerDb, &obj, URLQuery.Get("sort"))
 	// Filters
 
 	var total int64
@@ -93,30 +119,32 @@ func List[T any](w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	recordsPerPage := defaultRecordsPerPage
-	if data.Valid(r.URL.Query().Get("records")) {
-		recordsPerPage, err = strconv.Atoi(r.URL.Query().Get("records"))
-		if err != nil || recordsPerPage < 1 || recordsPerPage > maxRecordsPerPage {
+	offset := 0
+	if URLQuery.Get("offset") != "" {
+		offset, err = strconv.Atoi(URLQuery.Get("offset"))
+		if err != nil {
 			w.WriteHeader(http.StatusBadRequest)
 			return
 		}
 	}
 
-	pages := int(total / int64(recordsPerPage))
-	if total%int64(recordsPerPage) > 0 {
-		pages++
-	}
-
-	page := 1
-	if data.Valid(r.URL.Query().Get("page")) {
-		page, err = strconv.Atoi(r.URL.Query().Get("page"))
-		if err != nil || page < 1 || page > pages {
+	limit := defaultLimit
+	if URLQuery.Get("limit") != "" {
+		limit, err = strconv.Atoi(URLQuery.Get("limit"))
+		if err != nil {
 			w.WriteHeader(http.StatusBadRequest)
 			return
 		}
 	}
 
-	res := innerDb.Offset((page - 1) * recordsPerPage).Limit(recordsPerPage).Where(where).Find(&slice)
+	if offset < 0 || limit <= 0 || limit > maxLimit {
+		w.WriteHeader(http.StatusBadRequest)
+		return
+	}
+
+	innerDb = fields(innerDb, &obj, URLQuery.Get("fields"))
+
+	res := innerDb.Offset(offset).Limit(limit).Where(where).Find(&slice)
 	if res.RowsAffected == 0 {
 		w.WriteHeader(http.StatusNotFound)
 		return
@@ -128,12 +156,10 @@ func List[T any](w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	w.Header().Add("X-Paging-Page", fmt.Sprint(page))
-	w.Header().Add("X-Paging-Pages", fmt.Sprint(pages))
 	w.Header().Add("X-Paging-Total", fmt.Sprint(total))
-	w.Header().Add("X-Paging-RecordsPerPage", fmt.Sprint(recordsPerPage))
-	w.Header().Add("X-Paging-MaxRecordsPerPage", fmt.Sprint(maxRecordsPerPage))
+	w.Header().Add("X-Paging-MaxLimit", fmt.Sprint(maxLimit))
 
 	w.Header().Set("Content-Type", "application/json")
+
 	fmt.Fprintf(w, "%v", string(bytes))
 }

@@ -15,9 +15,9 @@ import (
 )
 
 type Dummy struct {
-	ID    int    `json:"id" gorm:"primaryKey"`
-	Title string `json:"title"`
-	Valid bool   `json:"valid"`
+	ID    int    `json:"id,omitempty" gorm:"primaryKey"`
+	Title string `json:"title,omitempty"`
+	Valid bool   `json:"valid,omitempty"`
 }
 
 func (o *Dummy) IsValidCreate() bool {

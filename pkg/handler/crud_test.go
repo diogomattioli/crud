@@ -22,7 +22,7 @@ func TestCreateOk(t *testing.T) {
 	req.Header.Set("Content-Type", "application/json")
 	rec := serveHTTP(req)
 
-	assert.Equal(t, http.StatusOK, rec.Code)
+	assert.Equal(t, http.StatusCreated, rec.Code)
 
 	var obj Dummy
 	db.First(&obj)
@@ -122,7 +122,7 @@ func TestCreateSubOk(t *testing.T) {
 	req.Header.Set("Content-Type", "application/json")
 	rec := serveHTTP(req)
 
-	assert.Equal(t, http.StatusOK, rec.Code)
+	assert.Equal(t, http.StatusCreated, rec.Code)
 
 	var slice []SubDummy
 	db.Where(SubDummy{Dummy: 2}).Order("id").Find(&slice)
@@ -180,7 +180,6 @@ func TestRetrieveOk(t *testing.T) {
 	assert.Equal(t, http.StatusOK, rec.Code)
 
 	var obj Dummy
-
 	err = json.NewDecoder(rec.Body).Decode(&obj)
 	if err != nil {
 		t.Fatal(err)
@@ -235,7 +234,6 @@ func TestRetrieveSubOk(t *testing.T) {
 	assert.Equal(t, http.StatusOK, rec.Code)
 
 	var obj SubDummy
-
 	err = json.NewDecoder(rec.Body).Decode(&obj)
 	if err != nil {
 		t.Fatal(err)
@@ -271,22 +269,13 @@ func TestUpdateOk(t *testing.T) {
 		t.Fatal(err)
 	}
 
-	var obj Dummy
-
-	db.First(&obj)
-	assert.Equal(t, 1, obj.ID)
-	assert.Equal(t, "title1", obj.Title)
-
 	req.Header.Set("Content-Type", "application/json")
 	rec := serveHTTP(req)
 
 	assert.Equal(t, http.StatusOK, rec.Code)
 
-	err = json.NewDecoder(rec.Body).Decode(&obj)
-	if err != nil {
-		t.Fatal(err)
-	}
-
+	var obj Dummy
+	db.First(&obj)
 	assert.Equal(t, 1, obj.ID)
 	assert.Equal(t, "title_new", obj.Title)
 }
@@ -426,14 +415,6 @@ func TestUpdateMismatchingId(t *testing.T) {
 	db.First(&obj, 6)
 	assert.Equal(t, 6, obj.ID)
 	assert.Equal(t, "title_new", obj.Title)
-
-	err = json.NewDecoder(rec.Body).Decode(&obj)
-	if err != nil {
-		t.Fatal(err)
-	}
-
-	assert.Equal(t, 6, obj.ID)
-	assert.Equal(t, "title_new", obj.Title)
 }
 
 func TestUpdateSubOk(t *testing.T) {
@@ -446,21 +427,12 @@ func TestUpdateSubOk(t *testing.T) {
 		t.Fatal(err)
 	}
 
-	var obj SubDummy
-
 	req.Header.Set("Content-Type", "application/json")
 	rec := serveHTTP(req)
 
 	assert.Equal(t, http.StatusOK, rec.Code)
 
-	err = json.NewDecoder(rec.Body).Decode(&obj)
-	if err != nil {
-		t.Fatal(err)
-	}
-
-	assert.Equal(t, 10, obj.ID)
-	assert.Equal(t, 5, obj.Dummy)
-	assert.Equal(t, "title_new", obj.Title)
+	var obj SubDummy
 
 	db.Where(SubDummy{ID: 10, Dummy: 5}).First(&obj)
 	assert.Equal(t, 10, obj.ID)
@@ -496,7 +468,7 @@ func TestDeleteOk(t *testing.T) {
 
 	rec := serveHTTP(req)
 
-	assert.Equal(t, http.StatusOK, rec.Code)
+	assert.Equal(t, http.StatusNoContent, rec.Code)
 }
 
 func TestDeleteBadId(t *testing.T) {
@@ -558,10 +530,9 @@ func TestDeleteSubOk(t *testing.T) {
 
 	rec := serveHTTP(req)
 
-	assert.Equal(t, http.StatusOK, rec.Code)
+	assert.Equal(t, http.StatusNoContent, rec.Code)
 
 	var slice []SubDummy
-
 	db.Where(SubDummy{Dummy: 5}).Find(&slice)
 	assert.Equal(t, 1, len(slice))
 	assert.Equal(t, 9, slice[0].ID)

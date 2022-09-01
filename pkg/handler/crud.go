@@ -62,18 +62,13 @@ func Create[T data.CreateValidator](w http.ResponseWriter, r *http.Request) {
 
 	res := db.Create(&obj)
 	if res.RowsAffected == 0 {
-		w.WriteHeader(http.StatusNotFound)
+		w.WriteHeader(http.StatusNotAcceptable)
 		return
 	}
 
-	bytes, err = json.Marshal(obj)
-	if err != nil {
-		w.WriteHeader(http.StatusInternalServerError)
-		return
-	}
+	// w.Header().Set("Location", fmt.Sprintf("%+v%+v", r.RequestURI, db.DB().Exec()))
 
-	w.Header().Set("Content-Type", "application/json")
-	fmt.Fprintf(w, "%v", string(bytes))
+	w.WriteHeader(http.StatusCreated)
 }
 
 func Retrieve[T any](w http.ResponseWriter, r *http.Request) {
@@ -113,6 +108,7 @@ func Retrieve[T any](w http.ResponseWriter, r *http.Request) {
 	}
 
 	w.Header().Set("Content-Type", "application/json")
+
 	fmt.Fprintf(w, "%v", string(bytes))
 }
 
@@ -177,18 +173,9 @@ func Update[T data.UpdateValidator[T]](w http.ResponseWriter, r *http.Request) {
 
 	res = db.Save(&obj)
 	if res.RowsAffected == 0 {
-		w.WriteHeader(http.StatusNotFound)
+		w.WriteHeader(http.StatusNotAcceptable)
 		return
 	}
-
-	bytes, err = json.Marshal(obj)
-	if err != nil {
-		w.WriteHeader(http.StatusInternalServerError)
-		return
-	}
-
-	w.Header().Set("Content-Type", "application/json")
-	fmt.Fprintf(w, "%v", string(bytes))
 }
 
 func Delete[T data.DeleteValidator](w http.ResponseWriter, r *http.Request) {
@@ -228,7 +215,9 @@ func Delete[T data.DeleteValidator](w http.ResponseWriter, r *http.Request) {
 
 	res = db.Delete(obj)
 	if res.RowsAffected == 0 {
-		w.WriteHeader(http.StatusNotFound)
+		w.WriteHeader(http.StatusNotAcceptable)
 		return
 	}
+
+	w.WriteHeader(http.StatusNoContent)
 }
