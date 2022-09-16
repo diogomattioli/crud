@@ -174,7 +174,7 @@ func TestCreateSubNotFound(t *testing.T) {
 	req.Header.Set("Content-Type", "application/json")
 	rec := serveHTTP(req)
 
-	assert.Equal(t, http.StatusNoContent, rec.Code)
+	assert.Equal(t, http.StatusNotFound, rec.Code)
 }
 
 func TestCreateMisconfigured(t *testing.T) {
