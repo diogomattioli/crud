@@ -159,6 +159,31 @@ func TestListFields(t *testing.T) {
 	assert.Equal(t, true, slice[0].Valid)
 }
 
+
+func TestListFieldsWrongField(t *testing.T) {
+
+	setupDb(1)
+	defer destroyDb()
+
+	req, err := http.NewRequest("GET", "/dummy/?fields=IDWrong", nil)
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	rec := serveHTTP(req)
+
+	assert.Equal(t, http.StatusBadRequest, rec.Code)
+
+	req, err = http.NewRequest("GET", "/dummy/?fields=TitleWrong,Valid", nil)
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	rec = serveHTTP(req)
+
+	assert.Equal(t, http.StatusBadRequest, rec.Code)
+}
+
 func TestList1Page(t *testing.T) {
 
 	setupDb(10)
@@ -331,6 +356,21 @@ func TestListSort(t *testing.T) {
 	assert.Equal(t, 5, len(slice))
 	assert.Equal(t, 5, slice[0].ID)
 	assert.Equal(t, 1, slice[4].ID)
+}
+
+func TestListSortWrongField(t *testing.T) {
+
+	setupDb(5)
+	defer destroyDb()
+
+	req, err := http.NewRequest("GET", "/dummy/?sort=TitleWrong", nil)
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	rec := serveHTTP(req)
+
+	assert.Equal(t, http.StatusBadRequest, rec.Code)
 }
 
 func TestListSubNoParams(t *testing.T) {

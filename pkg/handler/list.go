@@ -2,6 +2,7 @@ package handler
 
 import (
 	"encoding/json"
+	"errors"
 	"fmt"
 	"net/http"
 	"reflect"
@@ -40,21 +41,22 @@ func search(db *gorm.DB, obj any, query []string) *gorm.DB {
 	return db
 }
 
-func sort(db *gorm.DB, obj any, query string) *gorm.DB {
+func sort(db *gorm.DB, obj any, query string) (*gorm.DB, error) {
 
 	if data.Valid(query) {
 		if field, exists := reflect.TypeOf(obj).Elem().FieldByName(query); exists {
-			return db.Order(fmt.Sprintf("%s ASC", field.Name))
+			return db.Order(fmt.Sprintf("%s ASC", field.Name)), nil
 		}
+		return db, errors.New("inexistent sort field")
 	}
 
-	return db
+	return db, nil
 }
 
-func fields(db *gorm.DB, obj any, query string) *gorm.DB {
+func fields(db *gorm.DB, obj any, query string) (*gorm.DB, error) {
 
 	if query == "" {
-		return db
+		return db, nil
 	}
 
 	var fields []string
@@ -71,11 +73,15 @@ func fields(db *gorm.DB, obj any, query string) *gorm.DB {
 		}
 	}
 
-	if len(fields) > 0 {
-		return db.Select(fields)
+	if len(fields) < len(queries) {
+		return db, errors.New("inexistent field")
 	}
 
-	return db
+	if len(fields) > 0 {
+		return db.Select(fields), nil
+	}
+
+	return db, nil
 }
 
 func List[T any](w http.ResponseWriter, r *http.Request) {
@@ -109,7 +115,11 @@ func List[T any](w http.ResponseWriter, r *http.Request) {
 
 	// Filters
 	innerDb = search(innerDb, &obj, URLQuery["search"])
-	innerDb = sort(innerDb, &obj, URLQuery.Get("sort"))
+	innerDb, err = sort(innerDb, &obj, URLQuery.Get("sort"))
+	if err != nil {
+		w.WriteHeader(http.StatusBadRequest)
+		return
+	}
 	// Filters
 
 	var total int64
@@ -142,7 +152,11 @@ func List[T any](w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	innerDb = fields(innerDb, &obj, URLQuery.Get("fields"))
+	innerDb, err = fields(innerDb, &obj, URLQuery.Get("fields"))
+	if err != nil {
+		w.WriteHeader(http.StatusBadRequest)
+		return
+	}
 
 	res := innerDb.Offset(offset).Limit(limit).Where(where).Find(&slice)
 	if res.RowsAffected == 0 {
