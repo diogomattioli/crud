@@ -22,7 +22,7 @@ func TestCreateOk(t *testing.T) {
 	req.Header.Set("Content-Type", "application/json")
 	rec := serveHTTP(req)
 
-	assert.Equal(t, http.StatusOK, rec.Code)
+	assert.Equal(t, http.StatusCreated, rec.Code)
 
 	var obj Dummy
 	db.First(&obj)
@@ -122,7 +122,7 @@ func TestCreateSubOk(t *testing.T) {
 	req.Header.Set("Content-Type", "application/json")
 	rec := serveHTTP(req)
 
-	assert.Equal(t, http.StatusOK, rec.Code)
+	assert.Equal(t, http.StatusCreated, rec.Code)
 
 	var slice []SubDummy
 	db.Where(SubDummy{Dummy: 2}).Order("id").Find(&slice)
@@ -131,6 +131,34 @@ func TestCreateSubOk(t *testing.T) {
 	assert.Equal(t, 5, slice[2].ID)
 	assert.Equal(t, 2, slice[2].Dummy)
 	assert.Equal(t, "title", slice[2].Title)
+}
+
+func TestCreateLocation(t *testing.T) {
+
+	setupDb(1)
+	defer destroyDb()
+
+	req, err := http.NewRequest("POST", "/dummy/", strings.NewReader("{\"id\":0,\"title\":\"title\",\"valid\":true}"))
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	req.Header.Set("Content-Type", "application/json")
+	rec := serveHTTP(req)
+
+	assert.Equal(t, http.StatusCreated, rec.Code)
+	assert.Equal(t, "/dummy/2", rec.Header().Get("Location"))
+
+	req, err = http.NewRequest("POST", "/dummy/1/subdummy/", strings.NewReader("{\"id\":0,\"title\":\"title\",\"valid\":true,\"id_dummy\":1}"))
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	req.Header.Set("Content-Type", "application/json")
+	rec = serveHTTP(req)
+
+	assert.Equal(t, http.StatusCreated, rec.Code)
+	assert.Equal(t, "/dummy/1/subdummy/3", rec.Header().Get("Location"))
 }
 
 func TestCreateSubNotFound(t *testing.T) {
@@ -146,7 +174,7 @@ func TestCreateSubNotFound(t *testing.T) {
 	req.Header.Set("Content-Type", "application/json")
 	rec := serveHTTP(req)
 
-	assert.Equal(t, http.StatusNoContent, rec.Code)
+	assert.Equal(t, http.StatusNotFound, rec.Code)
 }
 
 func TestCreateMisconfigured(t *testing.T) {
@@ -180,7 +208,6 @@ func TestRetrieveOk(t *testing.T) {
 	assert.Equal(t, http.StatusOK, rec.Code)
 
 	var obj Dummy
-
 	err = json.NewDecoder(rec.Body).Decode(&obj)
 	if err != nil {
 		t.Fatal(err)
@@ -235,7 +262,6 @@ func TestRetrieveSubOk(t *testing.T) {
 	assert.Equal(t, http.StatusOK, rec.Code)
 
 	var obj SubDummy
-
 	err = json.NewDecoder(rec.Body).Decode(&obj)
 	if err != nil {
 		t.Fatal(err)
@@ -271,22 +297,13 @@ func TestUpdateOk(t *testing.T) {
 		t.Fatal(err)
 	}
 
-	var obj Dummy
-
-	db.First(&obj)
-	assert.Equal(t, 1, obj.ID)
-	assert.Equal(t, "title1", obj.Title)
-
 	req.Header.Set("Content-Type", "application/json")
 	rec := serveHTTP(req)
 
 	assert.Equal(t, http.StatusOK, rec.Code)
 
-	err = json.NewDecoder(rec.Body).Decode(&obj)
-	if err != nil {
-		t.Fatal(err)
-	}
-
+	var obj Dummy
+	db.First(&obj)
 	assert.Equal(t, 1, obj.ID)
 	assert.Equal(t, "title_new", obj.Title)
 }
@@ -426,14 +443,6 @@ func TestUpdateMismatchingId(t *testing.T) {
 	db.First(&obj, 6)
 	assert.Equal(t, 6, obj.ID)
 	assert.Equal(t, "title_new", obj.Title)
-
-	err = json.NewDecoder(rec.Body).Decode(&obj)
-	if err != nil {
-		t.Fatal(err)
-	}
-
-	assert.Equal(t, 6, obj.ID)
-	assert.Equal(t, "title_new", obj.Title)
 }
 
 func TestUpdateSubOk(t *testing.T) {
@@ -446,21 +455,12 @@ func TestUpdateSubOk(t *testing.T) {
 		t.Fatal(err)
 	}
 
-	var obj SubDummy
-
 	req.Header.Set("Content-Type", "application/json")
 	rec := serveHTTP(req)
 
 	assert.Equal(t, http.StatusOK, rec.Code)
 
-	err = json.NewDecoder(rec.Body).Decode(&obj)
-	if err != nil {
-		t.Fatal(err)
-	}
-
-	assert.Equal(t, 10, obj.ID)
-	assert.Equal(t, 5, obj.Dummy)
-	assert.Equal(t, "title_new", obj.Title)
+	var obj SubDummy
 
 	db.Where(SubDummy{ID: 10, Dummy: 5}).First(&obj)
 	assert.Equal(t, 10, obj.ID)
@@ -496,7 +496,7 @@ func TestDeleteOk(t *testing.T) {
 
 	rec := serveHTTP(req)
 
-	assert.Equal(t, http.StatusOK, rec.Code)
+	assert.Equal(t, http.StatusNoContent, rec.Code)
 }
 
 func TestDeleteBadId(t *testing.T) {
@@ -558,10 +558,9 @@ func TestDeleteSubOk(t *testing.T) {
 
 	rec := serveHTTP(req)
 
-	assert.Equal(t, http.StatusOK, rec.Code)
+	assert.Equal(t, http.StatusNoContent, rec.Code)
 
 	var slice []SubDummy
-
 	db.Where(SubDummy{Dummy: 5}).Find(&slice)
 	assert.Equal(t, 1, len(slice))
 	assert.Equal(t, 9, slice[0].ID)

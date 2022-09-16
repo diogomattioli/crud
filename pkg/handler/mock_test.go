@@ -15,9 +15,13 @@ import (
 )
 
 type Dummy struct {
-	ID    int    `json:"id" gorm:"primaryKey"`
-	Title string `json:"title"`
-	Valid bool   `json:"valid"`
+	ID    int    `json:"id_dummy,omitempty" gorm:"primaryKey"`
+	Title string `json:"title,omitempty"`
+	Valid bool   `json:"valid,omitempty"`
+}
+
+func (o *Dummy) GetID() int {
+	return o.ID
 }
 
 func (o *Dummy) IsValidCreate() bool {
@@ -33,10 +37,14 @@ func (o *Dummy) IsValidDelete() bool {
 }
 
 type SubDummy struct {
-	ID    int    `json:"id" gorm:"primaryKey"`
+	ID    int    `json:"id_subdummy" gorm:"primaryKey"`
 	Title string `json:"title"`
 	Valid bool   `json:"valid"`
 	Dummy int    `json:"id_dummy"`
+}
+
+func (o *SubDummy) GetID() int {
+	return o.ID
 }
 
 func (o *SubDummy) IsValidCreate() bool {
@@ -101,21 +109,21 @@ func serveHTTP(req *http.Request) *httptest.ResponseRecorder {
 
 	router.HandleFunc("/dummy/", List[Dummy]).Methods("GET")
 	router.HandleFunc("/dummy/", Create[*Dummy]).Methods("POST")
-	router.HandleFunc("/dummy/{id:[0-9]+}", Retrieve[Dummy]).Methods("GET")
-	router.HandleFunc("/dummy/{id:[0-9]+}", Update[*Dummy]).Methods("PATCH")
-	router.HandleFunc("/dummy/{id:[0-9]+}", Delete[*Dummy]).Methods("DELETE")
+	router.HandleFunc("/dummy/{id_dummy:[0-9]+}", Retrieve[Dummy]).Methods("GET")
+	router.HandleFunc("/dummy/{id_dummy:[0-9]+}", Update[*Dummy]).Methods("PATCH")
+	router.HandleFunc("/dummy/{id_dummy:[0-9]+}", Delete[*Dummy]).Methods("DELETE")
 
-	router.HandleFunc("/dummy/{id_dummy:[0-9]+}/subdummy/", List[SubDummy]).Methods("GET")
-	router.HandleFunc("/dummy/{id_dummy:[0-9]+}/subdummy/", Create[*SubDummy]).Methods("POST")
-	router.HandleFunc("/dummy/{id_dummy:[0-9]+}/subdummy/{id:[0-9]+}", Retrieve[SubDummy]).Methods("GET")
-	router.HandleFunc("/dummy/{id_dummy:[0-9]+}/subdummy/{id:[0-9]+}", Update[*SubDummy]).Methods("PATCH")
-	router.HandleFunc("/dummy/{id_dummy:[0-9]+}/subdummy/{id:[0-9]+}", Delete[*SubDummy]).Methods("DELETE")
+	router.HandleFunc("/dummy/{id_dummy:[0-9]+}/subdummy/", ListSub[SubDummy, Dummy]).Methods("GET")
+	router.HandleFunc("/dummy/{id_dummy:[0-9]+}/subdummy/", CreateSub[*SubDummy, Dummy]).Methods("POST")
+	router.HandleFunc("/dummy/{id_dummy:[0-9]+}/subdummy/{id_subdummy:[0-9]+}", RetrieveSub[SubDummy, Dummy]).Methods("GET")
+	router.HandleFunc("/dummy/{id_dummy:[0-9]+}/subdummy/{id_subdummy:[0-9]+}", UpdateSub[*SubDummy, Dummy]).Methods("PATCH")
+	router.HandleFunc("/dummy/{id_dummy:[0-9]+}/subdummy/{id_subdummy:[0-9]+}", DeleteSub[*SubDummy, Dummy]).Methods("DELETE")
 
-	router.HandleFunc("/misconfigured/{id_wrong}/subdummy/", List[SubDummy]).Methods("GET")
-	router.HandleFunc("/misconfigured/{id_wrong}/subdummy/", Create[*SubDummy]).Methods("POST")
-	router.HandleFunc("/misconfigured/{id_wrong}/subdummy/{id_wrong}", Retrieve[SubDummy]).Methods("GET")
-	router.HandleFunc("/misconfigured/{id_wrong}/subdummy/{id_wrong}", Update[*SubDummy]).Methods("PATCH")
-	router.HandleFunc("/misconfigured/{id_wrong}/subdummy/{id_wrong}", Delete[*SubDummy]).Methods("DELETE")
+	router.HandleFunc("/misconfigured/{id_wrong}/subdummy/", ListSub[SubDummy, Dummy]).Methods("GET")
+	router.HandleFunc("/misconfigured/{id_wrong}/subdummy/", CreateSub[*SubDummy, Dummy]).Methods("POST")
+	router.HandleFunc("/misconfigured/{id_wrong}/subdummy/{id_wrong}", RetrieveSub[*SubDummy, Dummy]).Methods("GET")
+	router.HandleFunc("/misconfigured/{id_wrong}/subdummy/{id_wrong}", UpdateSub[*SubDummy, Dummy]).Methods("PATCH")
+	router.HandleFunc("/misconfigured/{id_wrong}/subdummy/{id_wrong}", DeleteSub[*SubDummy, Dummy]).Methods("DELETE")
 
 	router.ServeHTTP(rec, req)
 
