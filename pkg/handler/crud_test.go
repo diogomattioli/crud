@@ -133,6 +133,34 @@ func TestCreateSubOk(t *testing.T) {
 	assert.Equal(t, "title", slice[2].Title)
 }
 
+func TestCreateLocation(t *testing.T) {
+
+	setupDb(1)
+	defer destroyDb()
+
+	req, err := http.NewRequest("POST", "/dummy/", strings.NewReader("{\"id\":0,\"title\":\"title\",\"valid\":true}"))
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	req.Header.Set("Content-Type", "application/json")
+	rec := serveHTTP(req)
+
+	assert.Equal(t, http.StatusCreated, rec.Code)
+	assert.Equal(t, "/dummy/2", rec.Header().Get("Location"))
+
+	req, err = http.NewRequest("POST", "/dummy/1/subdummy/", strings.NewReader("{\"id\":0,\"title\":\"title\",\"valid\":true,\"id_dummy\":1}"))
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	req.Header.Set("Content-Type", "application/json")
+	rec = serveHTTP(req)
+
+	assert.Equal(t, http.StatusCreated, rec.Code)
+	assert.Equal(t, "/dummy/1/subdummy/3", rec.Header().Get("Location"))
+}
+
 func TestCreateSubNotFound(t *testing.T) {
 
 	setupDb(0)

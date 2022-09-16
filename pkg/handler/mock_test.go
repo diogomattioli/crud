@@ -20,6 +20,10 @@ type Dummy struct {
 	Valid bool   `json:"valid,omitempty"`
 }
 
+func (o *Dummy) GetID() int {
+	return o.ID
+}
+
 func (o *Dummy) IsValidCreate() bool {
 	return o.Valid
 }
@@ -37,6 +41,10 @@ type SubDummy struct {
 	Title string `json:"title"`
 	Valid bool   `json:"valid"`
 	Dummy int    `json:"id_dummy"`
+}
+
+func (o *SubDummy) GetID() int {
+	return o.ID
 }
 
 func (o *SubDummy) IsValidCreate() bool {

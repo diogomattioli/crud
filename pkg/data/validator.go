@@ -3,6 +3,7 @@ package data
 import "strings"
 
 type CreateValidator interface {
+	GetID() int
 	IsValidCreate() bool
 }
 
