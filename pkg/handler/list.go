@@ -10,7 +10,6 @@ import (
 	"strings"
 
 	"github.com/diogomattioli/crud/pkg/data"
-	"github.com/gorilla/mux"
 	"gorm.io/gorm"
 )
 
@@ -86,13 +85,7 @@ func fields(db *gorm.DB, obj any, query string) (*gorm.DB, error) {
 
 func List[T any](w http.ResponseWriter, r *http.Request) {
 
-	vars, err := data.VarsInt(mux.Vars(r))
-	if err != nil {
-		w.WriteHeader(http.StatusInternalServerError)
-		return
-	}
-
-	bytes, err := json.Marshal(vars)
+	vars, err := varsToJson(r)
 	if err != nil {
 		w.WriteHeader(http.StatusInternalServerError)
 		return
@@ -100,7 +93,7 @@ func List[T any](w http.ResponseWriter, r *http.Request) {
 
 	var where T
 
-	err = json.Unmarshal(bytes, &where)
+	err = json.Unmarshal(vars, &where)
 	if err != nil {
 		w.WriteHeader(http.StatusInternalServerError)
 		return
@@ -164,7 +157,7 @@ func List[T any](w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	bytes, err = json.Marshal(slice)
+	bytes, err := json.Marshal(slice)
 	if err != nil {
 		w.WriteHeader(http.StatusInternalServerError)
 		return

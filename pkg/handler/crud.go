@@ -6,7 +6,6 @@ import (
 	"net/http"
 
 	"github.com/diogomattioli/crud/pkg/data"
-	"github.com/gorilla/mux"
 )
 
 func Create[T data.CreateValidator](w http.ResponseWriter, r *http.Request) {
@@ -21,21 +20,7 @@ func Create[T data.CreateValidator](w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	vars, err := data.VarsInt(mux.Vars(r))
-	if err != nil {
-		w.WriteHeader(http.StatusInternalServerError)
-		return
-	}
-
-	bytes, err := json.Marshal(vars)
-	if err != nil {
-		w.WriteHeader(http.StatusInternalServerError)
-		return
-	}
-
-	var where T
-
-	err = json.Unmarshal(bytes, &where)
+	vars, err := varsToJson(r)
 	if err != nil {
 		w.WriteHeader(http.StatusInternalServerError)
 		return
@@ -49,7 +34,7 @@ func Create[T data.CreateValidator](w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	err = json.Unmarshal(bytes, &obj)
+	err = json.Unmarshal(vars, &obj)
 	if err != nil {
 		w.WriteHeader(http.StatusInternalServerError)
 		return
@@ -73,35 +58,19 @@ func Create[T data.CreateValidator](w http.ResponseWriter, r *http.Request) {
 
 func Retrieve[T any](w http.ResponseWriter, r *http.Request) {
 
-	vars, err := data.VarsInt(mux.Vars(r))
+	vars, err := varsToJson(r)
 	if err != nil {
 		w.WriteHeader(http.StatusInternalServerError)
 		return
 	}
 
-	bytes, err := json.Marshal(vars)
+	obj, err := getObject[T](vars)
 	if err != nil {
-		w.WriteHeader(http.StatusInternalServerError)
-		return
-	}
-
-	var where T
-
-	err = json.Unmarshal(bytes, &where)
-	if err != nil {
-		w.WriteHeader(http.StatusInternalServerError)
-		return
-	}
-
-	var obj T
-
-	res := db.Where(where).Or("1 != 1").First(&obj)
-	if res.RowsAffected == 0 {
 		w.WriteHeader(http.StatusNotFound)
 		return
 	}
 
-	bytes, err = json.Marshal(obj)
+	bytes, err := json.Marshal(obj)
 	if err != nil {
 		w.WriteHeader(http.StatusInternalServerError)
 		return
@@ -124,34 +93,18 @@ func Update[T data.UpdateValidator[T]](w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	vars, err := data.VarsInt(mux.Vars(r))
+	vars, err := varsToJson(r)
 	if err != nil {
 		w.WriteHeader(http.StatusInternalServerError)
 		return
 	}
 
-	bytes, err := json.Marshal(vars)
+	old, err := getObject[T](vars)
 	if err != nil {
-		w.WriteHeader(http.StatusInternalServerError)
-		return
-	}
-
-	var where T
-
-	err = json.Unmarshal(bytes, &where)
-	if err != nil {
-		w.WriteHeader(http.StatusInternalServerError)
-		return
-	}
-
-	var old T
-
-	res := db.Where(where).Or("1 != 1").First(&old)
-	if res.RowsAffected == 0 {
 		w.WriteHeader(http.StatusNotFound)
 		return
 	}
-
+	
 	var obj T = old
 
 	err = json.NewDecoder(r.Body).Decode(&obj)
@@ -160,7 +113,7 @@ func Update[T data.UpdateValidator[T]](w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	err = json.Unmarshal(bytes, &obj)
+	err = json.Unmarshal(vars, &obj)
 	if err != nil {
 		w.WriteHeader(http.StatusInternalServerError)
 		return
@@ -171,7 +124,7 @@ func Update[T data.UpdateValidator[T]](w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	res = db.Save(&obj)
+	res := db.Save(&obj)
 	if res.RowsAffected == 0 {
 		w.WriteHeader(http.StatusNotAcceptable)
 		return
@@ -180,30 +133,14 @@ func Update[T data.UpdateValidator[T]](w http.ResponseWriter, r *http.Request) {
 
 func Delete[T data.DeleteValidator](w http.ResponseWriter, r *http.Request) {
 
-	vars, err := data.VarsInt(mux.Vars(r))
+	vars, err := varsToJson(r)
 	if err != nil {
 		w.WriteHeader(http.StatusInternalServerError)
 		return
 	}
 
-	bytes, err := json.Marshal(vars)
+	obj, err := getObject[T](vars)
 	if err != nil {
-		w.WriteHeader(http.StatusInternalServerError)
-		return
-	}
-
-	var where T
-
-	err = json.Unmarshal(bytes, &where)
-	if err != nil {
-		w.WriteHeader(http.StatusInternalServerError)
-		return
-	}
-
-	var obj T
-
-	res := db.Where(where).Or("1 != 1").First(&obj)
-	if res.RowsAffected == 0 {
 		w.WriteHeader(http.StatusNotFound)
 		return
 	}
@@ -213,7 +150,7 @@ func Delete[T data.DeleteValidator](w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	res = db.Delete(obj)
+	res := db.Delete(obj)
 	if res.RowsAffected == 0 {
 		w.WriteHeader(http.StatusNotAcceptable)
 		return
