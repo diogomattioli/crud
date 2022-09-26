@@ -214,7 +214,7 @@ func TestList1Page(t *testing.T) {
 
 func TestListLimitBadRequest(t *testing.T) {
 
-	setupDb(1)
+	setupDb(0)
 	defer destroyDb()
 
 	req, err := http.NewRequest("GET", "/dummy/?limit=1000", nil)
@@ -247,7 +247,7 @@ func TestListLimitBadRequest(t *testing.T) {
 
 func TestListOffsetBadRequest(t *testing.T) {
 
-	setupDb(1)
+	setupDb(0)
 	defer destroyDb()
 
 	req, err := http.NewRequest("GET", "/dummy/?offset=-1000", nil)

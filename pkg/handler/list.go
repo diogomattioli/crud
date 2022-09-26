@@ -115,13 +115,6 @@ func List[T any](w http.ResponseWriter, r *http.Request) {
 	}
 	// Filters
 
-	var total int64
-	innerDb.Model(obj).Where(where).Count(&total)
-	if total == 0 {
-		w.WriteHeader(http.StatusNotFound)
-		return
-	}
-
 	offset := 0
 	if URLQuery.Get("offset") != "" {
 		offset, err = strconv.Atoi(URLQuery.Get("offset"))
@@ -148,6 +141,13 @@ func List[T any](w http.ResponseWriter, r *http.Request) {
 	innerDb, err = fields(innerDb, &obj, URLQuery.Get("fields"))
 	if err != nil {
 		w.WriteHeader(http.StatusBadRequest)
+		return
+	}
+
+	var total int64
+	innerDb.Model(obj).Where(where).Count(&total)
+	if total == 0 {
+		w.WriteHeader(http.StatusNotFound)
 		return
 	}
 
