@@ -25,7 +25,7 @@ func TestListEmpty(t *testing.T) {
 
 func TestListNoParams(t *testing.T) {
 
-	setupDb(250)
+	setupDb(5)
 	defer destroyDb()
 
 	req, err := http.NewRequest("GET", "/dummy/", nil)
@@ -37,7 +37,7 @@ func TestListNoParams(t *testing.T) {
 
 	assert.Equal(t, http.StatusOK, rec.Code)
 	assert.Equal(t, "application/json", rec.Header().Get("Content-Type"))
-	assert.Equal(t, "250", rec.Header().Get("X-Paging-Total"))
+	assert.Equal(t, "5", rec.Header().Get("X-Paging-Total"))
 	assert.Equal(t, "250", rec.Header().Get("X-Paging-MaxLimit"))
 
 	var slice []Dummy
@@ -46,17 +46,17 @@ func TestListNoParams(t *testing.T) {
 		t.Fatal(err)
 	}
 
-	assert.Equal(t, len(slice), 50)
+	assert.Equal(t, len(slice), 5)
 	assert.Equal(t, 1, slice[0].ID)
-	assert.Equal(t, 50, slice[49].ID)
+	assert.Equal(t, 5, slice[4].ID)
 }
 
 func TestList2ndPage(t *testing.T) {
 
-	setupDb(250)
+	setupDb(10)
 	defer destroyDb()
 
-	req, err := http.NewRequest("GET", "/dummy/?offset=50&limit=50", nil)
+	req, err := http.NewRequest("GET", "/dummy/?offset=5&limit=5", nil)
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -65,7 +65,7 @@ func TestList2ndPage(t *testing.T) {
 
 	assert.Equal(t, http.StatusOK, rec.Code)
 	assert.Equal(t, "application/json", rec.Header().Get("Content-Type"))
-	assert.Equal(t, "250", rec.Header().Get("X-Paging-Total"))
+	assert.Equal(t, "10", rec.Header().Get("X-Paging-Total"))
 	assert.Equal(t, "250", rec.Header().Get("X-Paging-MaxLimit"))
 
 	var slice []Dummy
@@ -74,17 +74,17 @@ func TestList2ndPage(t *testing.T) {
 		t.Fatal(err)
 	}
 
-	assert.Equal(t, 50, len(slice))
-	assert.Equal(t, 51, slice[0].ID)
-	assert.Equal(t, 100, slice[49].ID)
+	assert.Equal(t, 5, len(slice))
+	assert.Equal(t, 6, slice[0].ID)
+	assert.Equal(t, 10, slice[4].ID)
 }
 
-func TestListLimit25(t *testing.T) {
+func TestListLimit5(t *testing.T) {
 
-	setupDb(250)
+	setupDb(10)
 	defer destroyDb()
 
-	req, err := http.NewRequest("GET", "/dummy/?limit=25", nil)
+	req, err := http.NewRequest("GET", "/dummy/?limit=5", nil)
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -93,7 +93,7 @@ func TestListLimit25(t *testing.T) {
 
 	assert.Equal(t, http.StatusOK, rec.Code)
 	assert.Equal(t, "application/json", rec.Header().Get("Content-Type"))
-	assert.Equal(t, "250", rec.Header().Get("X-Paging-Total"))
+	assert.Equal(t, "10", rec.Header().Get("X-Paging-Total"))
 	assert.Equal(t, "250", rec.Header().Get("X-Paging-MaxLimit"))
 
 	var slice []Dummy
@@ -102,9 +102,9 @@ func TestListLimit25(t *testing.T) {
 		t.Fatal(err)
 	}
 
-	assert.Equal(t, 25, len(slice))
+	assert.Equal(t, 5, len(slice))
 	assert.Equal(t, 1, slice[0].ID)
-	assert.Equal(t, 25, slice[24].ID)
+	assert.Equal(t, 5, slice[4].ID)
 }
 
 func TestListFields(t *testing.T) {
@@ -214,7 +214,7 @@ func TestList1Page(t *testing.T) {
 
 func TestListLimitBadRequest(t *testing.T) {
 
-	setupDb(10)
+	setupDb(1)
 	defer destroyDb()
 
 	req, err := http.NewRequest("GET", "/dummy/?limit=1000", nil)
@@ -247,7 +247,7 @@ func TestListLimitBadRequest(t *testing.T) {
 
 func TestListOffsetBadRequest(t *testing.T) {
 
-	setupDb(10)
+	setupDb(1)
 	defer destroyDb()
 
 	req, err := http.NewRequest("GET", "/dummy/?offset=-1000", nil)
@@ -375,10 +375,10 @@ func TestListSortWrongField(t *testing.T) {
 
 func TestListSubNoParams(t *testing.T) {
 
-	setupDb(250)
+	setupDb(5)
 	defer destroyDb()
 
-	req, err := http.NewRequest("GET", "/dummy/23/subdummy/", nil)
+	req, err := http.NewRequest("GET", "/dummy/3/subdummy/", nil)
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -397,10 +397,10 @@ func TestListSubNoParams(t *testing.T) {
 	}
 
 	assert.Equal(t, 2, len(slice))
-	assert.Equal(t, 45, slice[0].ID)
-	assert.Equal(t, 23, slice[0].Dummy)
-	assert.Equal(t, 46, slice[1].ID)
-	assert.Equal(t, 23, slice[1].Dummy)
+	assert.Equal(t, 5, slice[0].ID)
+	assert.Equal(t, 3, slice[0].Dummy)
+	assert.Equal(t, 6, slice[1].ID)
+	assert.Equal(t, 3, slice[1].Dummy)
 }
 
 func TestListSubNotFound(t *testing.T) {
