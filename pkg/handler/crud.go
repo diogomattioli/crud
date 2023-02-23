@@ -40,8 +40,10 @@ func Create[T data.CreateValidator](w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	if !obj.IsValidCreate() {
+	err = obj.ValidateCreate()
+	if err != nil {
 		w.WriteHeader(http.StatusUnprocessableEntity)
+		fmt.Fprintf(w, "%v", err)
 		return
 	}
 
@@ -104,7 +106,7 @@ func Update[T data.UpdateValidator[T]](w http.ResponseWriter, r *http.Request) {
 		w.WriteHeader(http.StatusNotFound)
 		return
 	}
-	
+
 	var obj T = old
 
 	err = json.NewDecoder(r.Body).Decode(&obj)
@@ -119,8 +121,10 @@ func Update[T data.UpdateValidator[T]](w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	if !obj.IsValidUpdate(old) {
+	err = obj.ValidateUpdate(old)
+	if err != nil {
 		w.WriteHeader(http.StatusUnprocessableEntity)
+		fmt.Fprintf(w, "%v", err)
 		return
 	}
 
@@ -145,8 +149,10 @@ func Delete[T data.DeleteValidator](w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	if !obj.IsValidDelete() {
+	err = obj.ValidateDelete()
+	if err != nil {
 		w.WriteHeader(http.StatusUnprocessableEntity)
+		fmt.Fprintf(w, "%v", err)
 		return
 	}
 

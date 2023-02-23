@@ -9,6 +9,7 @@ import (
 	"net/http/httptest"
 	"strings"
 
+	"github.com/diogomattioli/crud/pkg/data"
 	"github.com/gorilla/mux"
 	"gorm.io/driver/sqlite"
 	"gorm.io/gorm"
@@ -24,16 +25,25 @@ func (o *Dummy) GetID() int {
 	return o.ID
 }
 
-func (o *Dummy) IsValidCreate() bool {
-	return o.Valid
+func (o *Dummy) ValidateCreate() error {
+	if !o.Valid {
+		return data.ValidationErrorNew(1, "Error - Not Valid")
+	}
+	return nil
 }
 
-func (o *Dummy) IsValidUpdate(old *Dummy) bool {
-	return o.Valid
+func (o *Dummy) ValidateUpdate(old *Dummy) error {
+	if !o.Valid {
+		return data.ValidationErrorNew(1, "Error - Not Valid")
+	}
+	return nil
 }
 
-func (o *Dummy) IsValidDelete() bool {
-	return o.Valid
+func (o *Dummy) ValidateDelete() error {
+	if !o.Valid {
+		return data.ValidationErrorNew(1, "Error - Not Valid")
+	}
+	return nil
 }
 
 type SubDummy struct {
@@ -47,16 +57,25 @@ func (o *SubDummy) GetID() int {
 	return o.ID
 }
 
-func (o *SubDummy) IsValidCreate() bool {
-	return o.Valid
+func (o *SubDummy) ValidateCreate() error {
+	if !o.Valid {
+		return data.ValidationErrorNew(1, "Error - Not Valid")
+	}
+	return nil
 }
 
-func (o *SubDummy) IsValidUpdate(old *SubDummy) bool {
-	return o.Valid
+func (o *SubDummy) ValidateUpdate(old *SubDummy) error {
+	if !o.Valid {
+		return data.ValidationErrorNew(1, "Error - Not Valid")
+	}
+	return nil
 }
 
-func (o *SubDummy) IsValidDelete() bool {
-	return o.Valid
+func (o *SubDummy) ValidateDelete() error {
+	if !o.Valid {
+		return data.ValidationErrorNew(1, "Error - Not Valid")
+	}
+	return nil
 }
 
 type MockAuth struct {

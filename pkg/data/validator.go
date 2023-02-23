@@ -1,33 +1,56 @@
 package data
 
-import "strings"
+import (
+	"encoding/json"
+	"fmt"
+	"strings"
+)
 
 type CreateValidator interface {
 	GetID() int
-	IsValidCreate() bool
+	ValidateCreate() error
 }
 
 type UpdateValidator[T any] interface {
-	IsValidUpdate(T) bool
+	ValidateUpdate(T) error
 }
 
 type DeleteValidator interface {
-	IsValidDelete() bool
+	ValidateDelete() error
 }
 
 type Validate[T any] struct {
 }
 
-func (*Validate[T]) IsValidCreate() bool {
-	return true
+func (*Validate[T]) ValidateCreate() error {
+	return nil
 }
 
-func (v *Validate[T]) IsValidUpdate(T) bool {
-	return v.IsValidCreate()
+func (v *Validate[T]) ValidateUpdate(T) error {
+	return v.ValidateCreate()
 }
 
-func (*Validate[T]) IsValidDelete() bool {
-	return true
+func (*Validate[T]) ValidateDelete() error {
+	return nil
+}
+
+type ValidationError struct {
+	Code    int    `json:"code"`
+	Message string `json:"message"`
+}
+
+func (e ValidationError) Error() string {
+
+	bytes, err := json.Marshal(&e)
+	if err == nil {
+		return string(bytes)
+	}
+
+	return fmt.Sprintf("Error %d: %s", e.Code, e.Message)
+}
+
+func ValidationErrorNew(code int, message string) ValidationError {
+	return ValidationError{code, message}
 }
 
 func Valid(str string) bool {
