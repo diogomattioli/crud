@@ -18,7 +18,7 @@ const (
 	defaultLimit = 50
 )
 
-func search(db *gorm.DB, obj any, query []string) *gorm.DB {
+func createSearchQuery(db *gorm.DB, obj any, query []string) *gorm.DB {
 
 	var fields []string
 
@@ -40,7 +40,7 @@ func search(db *gorm.DB, obj any, query []string) *gorm.DB {
 	return db
 }
 
-func sort(db *gorm.DB, obj any, query string) (*gorm.DB, error) {
+func createSortQuery(db *gorm.DB, obj any, query string) (*gorm.DB, error) {
 
 	if data.Valid(query) {
 		if field, exists := reflect.TypeOf(obj).Elem().FieldByName(query); exists {
@@ -52,7 +52,7 @@ func sort(db *gorm.DB, obj any, query string) (*gorm.DB, error) {
 	return db, nil
 }
 
-func fields(db *gorm.DB, obj any, query string) (*gorm.DB, error) {
+func selectReturnedFields(db *gorm.DB, obj any, query string) (*gorm.DB, error) {
 
 	if query == "" {
 		return db, nil
@@ -107,8 +107,8 @@ func List[T any](w http.ResponseWriter, r *http.Request) {
 	URLQuery := r.URL.Query()
 
 	// Filters
-	innerDb = search(innerDb, &obj, URLQuery["search"])
-	innerDb, err = sort(innerDb, &obj, URLQuery.Get("sort"))
+	innerDb = createSearchQuery(innerDb, &obj, URLQuery["search"])
+	innerDb, err = createSortQuery(innerDb, &obj, URLQuery.Get("sort"))
 	if err != nil {
 		w.WriteHeader(http.StatusBadRequest)
 		return
@@ -138,7 +138,7 @@ func List[T any](w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	innerDb, err = fields(innerDb, &obj, URLQuery.Get("fields"))
+	innerDb, err = selectReturnedFields(innerDb, &obj, URLQuery.Get("fields"))
 	if err != nil {
 		w.WriteHeader(http.StatusBadRequest)
 		return
