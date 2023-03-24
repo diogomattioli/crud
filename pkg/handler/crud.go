@@ -28,12 +28,14 @@ func Create[T data.CreateValidator](w http.ResponseWriter, r *http.Request) {
 
 	var obj T
 
+	// unmarshall the object from body
 	err = json.NewDecoder(r.Body).Decode(&obj)
 	if err != nil {
 		w.WriteHeader(http.StatusBadRequest)
 		return
 	}
 
+	// overwrite id with provided in the vars/url
 	err = json.Unmarshal(vars, &obj)
 	if err != nil {
 		w.WriteHeader(http.StatusInternalServerError)
@@ -109,12 +111,14 @@ func Update[T data.UpdateValidator[T]](w http.ResponseWriter, r *http.Request) {
 
 	var obj T = old
 
+	// unmarshall the object from body
 	err = json.NewDecoder(r.Body).Decode(&obj)
 	if err != nil {
 		w.WriteHeader(http.StatusBadRequest)
 		return
 	}
 
+	// overwrite id with provided in the vars/url
 	err = json.Unmarshal(vars, &obj)
 	if err != nil {
 		w.WriteHeader(http.StatusInternalServerError)
