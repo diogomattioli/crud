@@ -14,7 +14,7 @@ func TestCreateOk(t *testing.T) {
 	setupDb(0)
 	defer destroyDb()
 
-	req, err := http.NewRequest("POST", "/dummy/", strings.NewReader("{\"id\":0,\"title\":\"title\",\"valid\":true}"))
+	req, err := http.NewRequest("POST", "/dummy/", strings.NewReader("{\"id_dummy\":0,\"title\":\"title\",\"valid\":true}"))
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -62,7 +62,7 @@ func TestCreateNotValid(t *testing.T) {
 	setupDb(0)
 	defer destroyDb()
 
-	req, err := http.NewRequest("POST", "/dummy/", strings.NewReader("{\"id\":0,\"title\":\"title\",\"valid\":false}"))
+	req, err := http.NewRequest("POST", "/dummy/", strings.NewReader("{\"id_dummy\":0,\"title\":\"title\",\"valid\":false}"))
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -78,7 +78,7 @@ func TestCreateBadJson(t *testing.T) {
 	setupDb(1)
 	defer destroyDb()
 
-	req, err := http.NewRequest("POST", "/dummy/", strings.NewReader("{\"id\":1,\"title\":\"title_new\":"))
+	req, err := http.NewRequest("POST", "/dummy/", strings.NewReader("{\"id_dummy\":1,\"title\":\"title_new\":"))
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -94,7 +94,7 @@ func TestCreateNotJson(t *testing.T) {
 	setupDb(0)
 	defer destroyDb()
 
-	req, err := http.NewRequest("POST", "/dummy/", strings.NewReader("{\"id\":0,\"title\":\"title\",\"valid\":false}"))
+	req, err := http.NewRequest("POST", "/dummy/", strings.NewReader("{\"id_dummy\":0,\"title\":\"title\",\"valid\":false}"))
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -114,7 +114,7 @@ func TestCreateSubOk(t *testing.T) {
 	setupDb(2)
 	defer destroyDb()
 
-	req, err := http.NewRequest("POST", "/dummy/2/subdummy/", strings.NewReader("{\"id\":0,\"title\":\"title\",\"valid\":true,\"id_dummy\":100}"))
+	req, err := http.NewRequest("POST", "/dummy/2/subdummy/", strings.NewReader("{\"id_subdummy\":0,\"title\":\"title\",\"valid\":true,\"id_dummy\":100}"))
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -138,7 +138,7 @@ func TestCreateLocation(t *testing.T) {
 	setupDb(1)
 	defer destroyDb()
 
-	req, err := http.NewRequest("POST", "/dummy/", strings.NewReader("{\"id\":0,\"title\":\"title\",\"valid\":true}"))
+	req, err := http.NewRequest("POST", "/dummy/", strings.NewReader("{\"id_dummy\":0,\"title\":\"title\",\"valid\":true}"))
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -149,7 +149,7 @@ func TestCreateLocation(t *testing.T) {
 	assert.Equal(t, http.StatusCreated, rec.Code)
 	assert.Equal(t, "/dummy/2", rec.Header().Get("Location"))
 
-	req, err = http.NewRequest("POST", "/dummy/1/subdummy/", strings.NewReader("{\"id\":0,\"title\":\"title\",\"valid\":true,\"id_dummy\":1}"))
+	req, err = http.NewRequest("POST", "/dummy/1/subdummy/", strings.NewReader("{\"id_subdummy\":0,\"title\":\"title\",\"valid\":true,\"id_dummy\":1}"))
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -166,7 +166,7 @@ func TestCreateSubNotFound(t *testing.T) {
 	setupDb(0)
 	defer destroyDb()
 
-	req, err := http.NewRequest("POST", "/dummy/1/subdummy/", strings.NewReader("{\"id\":0,\"title\":\"title\",\"valid\":true}"))
+	req, err := http.NewRequest("POST", "/dummy/1/subdummy/", strings.NewReader("{\"id_subdummy\":0,\"title\":\"title\",\"valid\":true}"))
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -182,7 +182,7 @@ func TestCreateMisconfigured(t *testing.T) {
 	setupDb(2)
 	defer destroyDb()
 
-	req, err := http.NewRequest("POST", "/misconfigured/2/subdummy/", strings.NewReader("{\"id\":0,\"title\":\"title\",\"valid\":true,\"id_dummy\":100}"))
+	req, err := http.NewRequest("POST", "/misconfigured/2/subdummy/", strings.NewReader("{\"id_subdummy\":0,\"title\":\"title\",\"valid\":true,\"id_dummy\":100}"))
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -292,7 +292,7 @@ func TestUpdateOk(t *testing.T) {
 	setupDb(1)
 	defer destroyDb()
 
-	req, err := http.NewRequest("PATCH", "/dummy/1", strings.NewReader("{\"id\":1,\"title\":\"title_new\",\"valid\":true}"))
+	req, err := http.NewRequest("PATCH", "/dummy/1", strings.NewReader("{\"id_dummy\":1,\"title\":\"title_new\",\"valid\":true}"))
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -364,7 +364,7 @@ func TestUpdateBadId(t *testing.T) {
 	setupDb(1)
 	defer destroyDb()
 
-	req, err := http.NewRequest("PATCH", "/dummy/a", strings.NewReader("{\"id\":1,\"title\":\"title_new\",\"valid\":true}"))
+	req, err := http.NewRequest("PATCH", "/dummy/a", strings.NewReader("{\"id_dummy\":1,\"title\":\"title_new\",\"valid\":true}"))
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -380,7 +380,7 @@ func TestUpdateBadJson(t *testing.T) {
 	setupDb(1)
 	defer destroyDb()
 
-	req, err := http.NewRequest("PATCH", "/dummy/1", strings.NewReader("{\"id\":1,\"title\":\"title_new\":"))
+	req, err := http.NewRequest("PATCH", "/dummy/1", strings.NewReader("{\"id_dummy\":1,\"title\":\"title_new\":"))
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -396,7 +396,7 @@ func TestUpdateInexistent(t *testing.T) {
 	setupDb(0)
 	defer destroyDb()
 
-	req, err := http.NewRequest("PATCH", "/dummy/1", strings.NewReader("{\"id\":1,\"title\":\"title_new\",\"valid\":true}"))
+	req, err := http.NewRequest("PATCH", "/dummy/1", strings.NewReader("{\"id_dummy\":1,\"title\":\"title_new\",\"valid\":true}"))
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -412,7 +412,7 @@ func TestUpdateInvalid(t *testing.T) {
 	setupDb(1)
 	defer destroyDb()
 
-	req, err := http.NewRequest("PATCH", "/dummy/1", strings.NewReader("{\"id\":1,\"title\":\"title_new\",\"valid\":false}"))
+	req, err := http.NewRequest("PATCH", "/dummy/1", strings.NewReader("{\"id_dummy\":1,\"title\":\"title_new\",\"valid\":false}"))
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -428,7 +428,7 @@ func TestUpdateMismatchingId(t *testing.T) {
 	setupDb(10)
 	defer destroyDb()
 
-	req, err := http.NewRequest("PATCH", "/dummy/6", strings.NewReader("{\"id\":2,\"title\":\"title_new\",\"valid\":true}"))
+	req, err := http.NewRequest("PATCH", "/dummy/6", strings.NewReader("{\"id_dummy\":2,\"title\":\"title_new\",\"valid\":true}"))
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -450,7 +450,7 @@ func TestUpdateSubOk(t *testing.T) {
 	setupDb(10)
 	defer destroyDb()
 
-	req, err := http.NewRequest("PATCH", "/dummy/5/subdummy/10", strings.NewReader("{\"id\":0,\"title\":\"title_new\",\"valid\":true}"))
+	req, err := http.NewRequest("PATCH", "/dummy/5/subdummy/10", strings.NewReader("{\"id_subdummy\":0,\"title\":\"title_new\",\"valid\":true}"))
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -473,7 +473,7 @@ func TestUpdateMisconfigured(t *testing.T) {
 	setupDb(10)
 	defer destroyDb()
 
-	req, err := http.NewRequest("PATCH", "/misconfigured/5/subdummy/10", strings.NewReader("{\"id\":0,\"title\":\"title_new\",\"valid\":true}"))
+	req, err := http.NewRequest("PATCH", "/misconfigured/5/subdummy/10", strings.NewReader("{\"id_subdummy\":0,\"title\":\"title_new\",\"valid\":true}"))
 	if err != nil {
 		t.Fatal(err)
 	}
