@@ -20,6 +20,10 @@ const (
 
 func createSearchQuery(db *gorm.DB, obj any, query []string) *gorm.DB {
 
+	if len(query) == 0 {
+		return db
+	}
+
 	var fields []string
 
 	ty := reflect.TypeOf(obj).Elem()
@@ -41,6 +45,10 @@ func createSearchQuery(db *gorm.DB, obj any, query []string) *gorm.DB {
 }
 
 func createSortQuery(db *gorm.DB, obj any, query string) (*gorm.DB, error) {
+
+	if query == "" {
+		return db, nil
+	}
 
 	if data.Valid(query) {
 		if field, exists := reflect.TypeOf(obj).Elem().FieldByName(query); exists {
