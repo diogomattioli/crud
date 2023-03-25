@@ -114,15 +114,6 @@ func List[T any](w http.ResponseWriter, r *http.Request) {
 
 	URLQuery := r.URL.Query()
 
-	// Filters
-	innerDb = createSearchQuery(innerDb, &obj, URLQuery["search"])
-	innerDb, err = createSortQuery(innerDb, &obj, URLQuery.Get("sort"))
-	if err != nil {
-		w.WriteHeader(http.StatusBadRequest)
-		return
-	}
-	// Filters
-
 	offset := 0
 	if URLQuery.Get("offset") != "" {
 		offset, err = strconv.Atoi(URLQuery.Get("offset"))
@@ -151,6 +142,15 @@ func List[T any](w http.ResponseWriter, r *http.Request) {
 		w.WriteHeader(http.StatusBadRequest)
 		return
 	}
+
+	// Filters
+	innerDb = createSearchQuery(innerDb, &obj, URLQuery["search"])
+	innerDb, err = createSortQuery(innerDb, &obj, URLQuery.Get("sort"))
+	if err != nil {
+		w.WriteHeader(http.StatusBadRequest)
+		return
+	}
+	// Filters
 
 	var total int64
 	innerDb.Model(obj).Where(where).Count(&total)
