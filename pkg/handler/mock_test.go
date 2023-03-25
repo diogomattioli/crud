@@ -149,20 +149,6 @@ func serveHTTP(req *http.Request) *httptest.ResponseRecorder {
 	return rec
 }
 
-func serveHTTPAuth(req *http.Request) *httptest.ResponseRecorder {
-
-	rec := httptest.NewRecorder()
-
-	router := mux.NewRouter().StrictSlash(true)
-	router.HandleFunc("/login/", Login).Methods("POST")
-	subrouter := router.PathPrefix("/auth").Subrouter()
-	subrouter.Use(Auth)
-	subrouter.HandleFunc("/dummy/", func(w http.ResponseWriter, r *http.Request) {}).Methods("GET")
-	router.ServeHTTP(rec, req)
-
-	return rec
-}
-
 func formData(values map[string]string) ([]byte, string, error) {
 
 	body := &bytes.Buffer{}

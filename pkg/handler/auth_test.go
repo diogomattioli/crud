@@ -3,8 +3,10 @@ package handler
 import (
 	"bytes"
 	"net/http"
+	"net/http/httptest"
 	"testing"
 
+	"github.com/gorilla/mux"
 	"github.com/stretchr/testify/assert"
 )
 
@@ -177,4 +179,18 @@ func TestAuthEmpty(t *testing.T) {
 	rec := serveHTTPAuth(req)
 
 	assert.Equal(t, http.StatusForbidden, rec.Code)
+}
+
+func serveHTTPAuth(req *http.Request) *httptest.ResponseRecorder {
+
+	rec := httptest.NewRecorder()
+
+	router := mux.NewRouter().StrictSlash(true)
+	router.HandleFunc("/login/", Login).Methods("POST")
+	subrouter := router.PathPrefix("/auth").Subrouter()
+	subrouter.Use(Auth)
+	subrouter.HandleFunc("/dummy/", func(w http.ResponseWriter, r *http.Request) {}).Methods("GET")
+	router.ServeHTTP(rec, req)
+
+	return rec
 }
