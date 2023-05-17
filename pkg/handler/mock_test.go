@@ -78,6 +78,16 @@ func (o *SubDummy) ValidateDelete() error {
 	return nil
 }
 
+type DummyDefault struct {
+	data.Validate[*DummyDefault] `json:"-" gorm:"-"`
+	ID                           int    `json:"id_dummy,omitempty" gorm:"primaryKey"`
+	Title                        string `json:"title,omitempty"`
+}
+
+func (o *DummyDefault) GetID() int {
+	return o.ID
+}
+
 type MockAuth struct {
 	shouldFail bool
 }
@@ -103,11 +113,13 @@ func setupDb(quantity int) {
 
 	db.AutoMigrate(&Dummy{})
 	db.AutoMigrate(&SubDummy{})
+	db.AutoMigrate(&DummyDefault{})
 
 	for i := 1; i <= quantity; i++ {
 		db.Create(&Dummy{ID: i, Title: fmt.Sprintf("title%v", quantity-i+1), Valid: true})
 		db.Create(&SubDummy{ID: i*2 - 1, Title: fmt.Sprintf("subtitle%v", quantity-i+1), Valid: true, Dummy: i})
 		db.Create(&SubDummy{ID: i * 2, Title: fmt.Sprintf("subtitle%v", quantity-i+1), Valid: true, Dummy: i})
+		db.Create(&DummyDefault{ID: i, Title: fmt.Sprintf("title%v", quantity-i+1)})
 	}
 
 	SetDatabase(db)
@@ -143,6 +155,12 @@ func serveHTTP(req *http.Request) *httptest.ResponseRecorder {
 	router.HandleFunc("/misconfigured/{id_wrong}/subdummy/{id_wrong}", RetrieveSub[*SubDummy, Dummy]).Methods("GET")
 	router.HandleFunc("/misconfigured/{id_wrong}/subdummy/{id_wrong}", UpdateSub[*SubDummy, Dummy]).Methods("PATCH")
 	router.HandleFunc("/misconfigured/{id_wrong}/subdummy/{id_wrong}", DeleteSub[*SubDummy, Dummy]).Methods("DELETE")
+
+	router.HandleFunc("/dummy_default/", List[DummyDefault]).Methods("GET")
+	router.HandleFunc("/dummy_default/", Create[*DummyDefault]).Methods("POST")
+	router.HandleFunc("/dummy_default/{id_dummy:[0-9]+}", Retrieve[DummyDefault]).Methods("GET")
+	router.HandleFunc("/dummy_default/{id_dummy:[0-9]+}", Update[*DummyDefault]).Methods("PATCH")
+	router.HandleFunc("/dummy_default/{id_dummy:[0-9]+}", Delete[*DummyDefault]).Methods("DELETE")
 
 	router.ServeHTTP(rec, req)
 

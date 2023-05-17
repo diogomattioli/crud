@@ -31,6 +31,28 @@ func TestCreateOk(t *testing.T) {
 	assert.Equal(t, "title", obj.Title)
 }
 
+func TestCreateOkDefaultValidate(t *testing.T) {
+
+	setupDb(0)
+	defer destroyDb()
+
+	req, err := http.NewRequest("POST", "/dummy_default/", strings.NewReader("{\"id_dummy\":0,\"title\":\"title\"}"))
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	req.Header.Set("Content-Type", "application/json")
+	rec := serveHTTP(req)
+
+	assert.Equal(t, http.StatusCreated, rec.Code)
+
+	var obj DummyDefault
+	db.First(&obj)
+
+	assert.Equal(t, 1, obj.ID)
+	assert.Equal(t, "title", obj.Title)
+}
+
 func TestCreateEmpty(t *testing.T) {
 
 	setupDb(0)
@@ -217,6 +239,30 @@ func TestRetrieveOk(t *testing.T) {
 	assert.Equal(t, "title4", obj.Title)
 }
 
+func TestRetrieveOkDefaultValidate(t *testing.T) {
+
+	setupDb(10)
+	defer destroyDb()
+
+	req, err := http.NewRequest("GET", "/dummy_default/7", nil)
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	rec := serveHTTP(req)
+
+	assert.Equal(t, http.StatusOK, rec.Code)
+
+	var obj DummyDefault
+	err = json.NewDecoder(rec.Body).Decode(&obj)
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	assert.Equal(t, 7, obj.ID)
+	assert.Equal(t, "title4", obj.Title)
+}
+
 func TestRetrieveNotFound(t *testing.T) {
 
 	setupDb(0)
@@ -303,6 +349,27 @@ func TestUpdateOk(t *testing.T) {
 	assert.Equal(t, http.StatusOK, rec.Code)
 
 	var obj Dummy
+	db.First(&obj)
+	assert.Equal(t, 1, obj.ID)
+	assert.Equal(t, "title_new", obj.Title)
+}
+
+func TestUpdateOkDefaultValidate(t *testing.T) {
+
+	setupDb(1)
+	defer destroyDb()
+
+	req, err := http.NewRequest("PATCH", "/dummy_default/1", strings.NewReader("{\"id_dummy\":1,\"title\":\"title_new\",\"valid\":true}"))
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	req.Header.Set("Content-Type", "application/json")
+	rec := serveHTTP(req)
+
+	assert.Equal(t, http.StatusOK, rec.Code)
+
+	var obj DummyDefault
 	db.First(&obj)
 	assert.Equal(t, 1, obj.ID)
 	assert.Equal(t, "title_new", obj.Title)
@@ -490,6 +557,21 @@ func TestDeleteOk(t *testing.T) {
 	defer destroyDb()
 
 	req, err := http.NewRequest("DELETE", "/dummy/1", nil)
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	rec := serveHTTP(req)
+
+	assert.Equal(t, http.StatusNoContent, rec.Code)
+}
+
+func TestDeleteOkDefaultValidate(t *testing.T) {
+
+	setupDb(1)
+	defer destroyDb()
+
+	req, err := http.NewRequest("DELETE", "/dummy_default/1", nil)
 	if err != nil {
 		t.Fatal(err)
 	}
