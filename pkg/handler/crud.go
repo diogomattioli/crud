@@ -56,6 +56,7 @@ func Create[T data.CreateValidator](w http.ResponseWriter, r *http.Request) {
 	}
 
 	w.Header().Set("Location", fmt.Sprintf("%+v%+v", r.URL.RequestURI(), obj.GetID()))
+	w.Header().Set("X-Item-ID", fmt.Sprintf("%+v", obj.GetID()))
 
 	w.WriteHeader(http.StatusCreated)
 }
