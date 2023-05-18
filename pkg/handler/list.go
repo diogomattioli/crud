@@ -164,8 +164,8 @@ func List[T any](w http.ResponseWriter, r *http.Request) {
 
 	w.Header().Add("X-Paging-Total", fmt.Sprint(total))
 
-	res := innerDb.Offset(offset).Limit(limit).Where(where).Find(&slice)
-	if res.RowsAffected == 0 {
+	innerDb.Offset(offset).Limit(limit).Where(where).Find(&slice)
+	if len(slice) == 0 {
 		w.WriteHeader(http.StatusNotFound)
 		return
 	}
