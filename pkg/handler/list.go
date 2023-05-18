@@ -107,6 +107,9 @@ func List[T any](w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	w.Header().Add("X-Paging-MaxLimit", fmt.Sprint(maxLimit))
+	w.Header().Add("X-Paging-DefaultLimit", fmt.Sprint(defaultLimit))
+
 	var slice []T
 	var obj T
 
@@ -159,20 +162,21 @@ func List[T any](w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	w.Header().Add("X-Paging-Total", fmt.Sprint(total))
+
 	res := innerDb.Offset(offset).Limit(limit).Where(where).Find(&slice)
 	if res.RowsAffected == 0 {
 		w.WriteHeader(http.StatusNotFound)
 		return
 	}
 
+	w.Header().Add("X-Paging-Size", fmt.Sprint(len(slice)))
+
 	bytes, err := json.Marshal(slice)
 	if err != nil {
 		w.WriteHeader(http.StatusInternalServerError)
 		return
 	}
-
-	w.Header().Add("X-Paging-Total", fmt.Sprint(total))
-	w.Header().Add("X-Paging-MaxLimit", fmt.Sprint(maxLimit))
 
 	w.Header().Set("Content-Type", "application/json")
 

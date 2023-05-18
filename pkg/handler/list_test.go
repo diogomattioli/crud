@@ -38,6 +38,7 @@ func TestListNoParams(t *testing.T) {
 	assert.Equal(t, http.StatusOK, rec.Code)
 	assert.Equal(t, "application/json", rec.Header().Get("Content-Type"))
 	assert.Equal(t, "5", rec.Header().Get("X-Paging-Total"))
+	assert.Equal(t, "5", rec.Header().Get("X-Paging-Size"))
 	assert.Equal(t, "250", rec.Header().Get("X-Paging-MaxLimit"))
 
 	var slice []Dummy
@@ -66,6 +67,7 @@ func TestList2ndPage(t *testing.T) {
 	assert.Equal(t, http.StatusOK, rec.Code)
 	assert.Equal(t, "application/json", rec.Header().Get("Content-Type"))
 	assert.Equal(t, "10", rec.Header().Get("X-Paging-Total"))
+	assert.Equal(t, "5", rec.Header().Get("X-Paging-Size"))
 	assert.Equal(t, "250", rec.Header().Get("X-Paging-MaxLimit"))
 
 	var slice []Dummy
@@ -94,6 +96,7 @@ func TestListLimit5(t *testing.T) {
 	assert.Equal(t, http.StatusOK, rec.Code)
 	assert.Equal(t, "application/json", rec.Header().Get("Content-Type"))
 	assert.Equal(t, "10", rec.Header().Get("X-Paging-Total"))
+	assert.Equal(t, "5", rec.Header().Get("X-Paging-Size"))
 	assert.Equal(t, "250", rec.Header().Get("X-Paging-MaxLimit"))
 
 	var slice []Dummy
@@ -105,6 +108,64 @@ func TestListLimit5(t *testing.T) {
 	assert.Equal(t, 5, len(slice))
 	assert.Equal(t, 1, slice[0].ID)
 	assert.Equal(t, 5, slice[4].ID)
+}
+
+func TestListOffset(t *testing.T) {
+
+	setupDb(10)
+	defer destroyDb()
+
+	req, err := http.NewRequest("GET", "/dummy/?offset=5", nil)
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	rec := serveHTTP(req)
+
+	assert.Equal(t, http.StatusOK, rec.Code)
+	assert.Equal(t, "application/json", rec.Header().Get("Content-Type"))
+	assert.Equal(t, "10", rec.Header().Get("X-Paging-Total"))
+	assert.Equal(t, "5", rec.Header().Get("X-Paging-Size"))
+	assert.Equal(t, "250", rec.Header().Get("X-Paging-MaxLimit"))
+
+	var slice []Dummy
+	err = json.NewDecoder(rec.Body).Decode(&slice)
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	assert.Equal(t, 5, len(slice))
+	assert.Equal(t, 6, slice[0].ID)
+	assert.Equal(t, 10, slice[4].ID)
+}
+
+func TestListLimitOffset(t *testing.T) {
+
+	setupDb(15)
+	defer destroyDb()
+
+	req, err := http.NewRequest("GET", "/dummy/?offset=5&limit=5", nil)
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	rec := serveHTTP(req)
+
+	assert.Equal(t, http.StatusOK, rec.Code)
+	assert.Equal(t, "application/json", rec.Header().Get("Content-Type"))
+	assert.Equal(t, "15", rec.Header().Get("X-Paging-Total"))
+	assert.Equal(t, "5", rec.Header().Get("X-Paging-Size"))
+	assert.Equal(t, "250", rec.Header().Get("X-Paging-MaxLimit"))
+
+	var slice []Dummy
+	err = json.NewDecoder(rec.Body).Decode(&slice)
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	assert.Equal(t, 5, len(slice))
+	assert.Equal(t, 6, slice[0].ID)
+	assert.Equal(t, 10, slice[4].ID)
 }
 
 func TestListFields(t *testing.T) {
@@ -122,6 +183,7 @@ func TestListFields(t *testing.T) {
 	assert.Equal(t, http.StatusOK, rec.Code)
 	assert.Equal(t, "application/json", rec.Header().Get("Content-Type"))
 	assert.Equal(t, "1", rec.Header().Get("X-Paging-Total"))
+	assert.Equal(t, "1", rec.Header().Get("X-Paging-Size"))
 	assert.Equal(t, "250", rec.Header().Get("X-Paging-MaxLimit"))
 
 	var slice []Dummy
@@ -145,6 +207,7 @@ func TestListFields(t *testing.T) {
 	assert.Equal(t, http.StatusOK, rec.Code)
 	assert.Equal(t, "application/json", rec.Header().Get("Content-Type"))
 	assert.Equal(t, "1", rec.Header().Get("X-Paging-Total"))
+	assert.Equal(t, "1", rec.Header().Get("X-Paging-Size"))
 	assert.Equal(t, "250", rec.Header().Get("X-Paging-MaxLimit"))
 
 	slice = []Dummy{}
@@ -158,7 +221,6 @@ func TestListFields(t *testing.T) {
 	assert.Equal(t, "title1", slice[0].Title)
 	assert.Equal(t, true, slice[0].Valid)
 }
-
 
 func TestListFieldsWrongField(t *testing.T) {
 
@@ -199,6 +261,7 @@ func TestList1Page(t *testing.T) {
 	assert.Equal(t, http.StatusOK, rec.Code)
 	assert.Equal(t, "application/json", rec.Header().Get("Content-Type"))
 	assert.Equal(t, "10", rec.Header().Get("X-Paging-Total"))
+	assert.Equal(t, "10", rec.Header().Get("X-Paging-Size"))
 	assert.Equal(t, "250", rec.Header().Get("X-Paging-MaxLimit"))
 
 	var slice []Dummy
@@ -284,6 +347,7 @@ func TestListSearch(t *testing.T) {
 	assert.Equal(t, http.StatusOK, rec.Code)
 	assert.Equal(t, "application/json", rec.Header().Get("Content-Type"))
 	assert.Equal(t, "3", rec.Header().Get("X-Paging-Total"))
+	assert.Equal(t, "3", rec.Header().Get("X-Paging-Size"))
 	assert.Equal(t, "250", rec.Header().Get("X-Paging-MaxLimit"))
 
 	var slice []Dummy
@@ -313,6 +377,7 @@ func TestListSearchMultiple(t *testing.T) {
 	assert.Equal(t, http.StatusOK, rec.Code)
 	assert.Equal(t, "application/json", rec.Header().Get("Content-Type"))
 	assert.Equal(t, "6", rec.Header().Get("X-Paging-Total"))
+	assert.Equal(t, "6", rec.Header().Get("X-Paging-Size"))
 	assert.Equal(t, "250", rec.Header().Get("X-Paging-MaxLimit"))
 
 	var slice []Dummy
@@ -345,6 +410,7 @@ func TestListSort(t *testing.T) {
 	assert.Equal(t, http.StatusOK, rec.Code)
 	assert.Equal(t, "application/json", rec.Header().Get("Content-Type"))
 	assert.Equal(t, "5", rec.Header().Get("X-Paging-Total"))
+	assert.Equal(t, "5", rec.Header().Get("X-Paging-Size"))
 	assert.Equal(t, "250", rec.Header().Get("X-Paging-MaxLimit"))
 
 	var slice []Dummy
@@ -388,6 +454,7 @@ func TestListSubNoParams(t *testing.T) {
 	assert.Equal(t, http.StatusOK, rec.Code)
 	assert.Equal(t, "application/json", rec.Header().Get("Content-Type"))
 	assert.Equal(t, "2", rec.Header().Get("X-Paging-Total"))
+	assert.Equal(t, "2", rec.Header().Get("X-Paging-Size"))
 	assert.Equal(t, "250", rec.Header().Get("X-Paging-MaxLimit"))
 
 	var slice []SubDummy
