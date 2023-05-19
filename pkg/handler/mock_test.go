@@ -80,12 +80,12 @@ func (o *SubDummy) ValidateDelete() error {
 
 type DummyDefault struct {
 	data.Validate[*DummyDefault] `json:"-" gorm:"-"`
-	ID                           int    `json:"id_dummy,omitempty" gorm:"primaryKey"`
+	DummyDefaultID               int    `json:"id_dummy_default,omitempty" gorm:"primaryKey"`
 	Title                        string `json:"title,omitempty"`
 }
 
 func (o *DummyDefault) GetID() int {
-	return o.ID
+	return o.DummyDefaultID
 }
 
 type MockAuth struct {
@@ -119,7 +119,7 @@ func setupDb(quantity int) {
 		db.Create(&Dummy{ID: i, Title: fmt.Sprintf("title%v", quantity-i+1), Valid: true})
 		db.Create(&SubDummy{ID: i*2 - 1, Title: fmt.Sprintf("subtitle%v", quantity-i+1), Valid: true, Dummy: i})
 		db.Create(&SubDummy{ID: i * 2, Title: fmt.Sprintf("subtitle%v", quantity-i+1), Valid: true, Dummy: i})
-		db.Create(&DummyDefault{ID: i, Title: fmt.Sprintf("title%v", quantity-i+1)})
+		db.Create(&DummyDefault{DummyDefaultID: i, Title: fmt.Sprintf("title%v", quantity-i+1)})
 	}
 
 	SetDatabase(db)
@@ -158,9 +158,9 @@ func serveHTTP(req *http.Request) *httptest.ResponseRecorder {
 
 	router.HandleFunc("/dummy_default/", List[DummyDefault]).Methods("GET")
 	router.HandleFunc("/dummy_default/", Create[*DummyDefault]).Methods("POST")
-	router.HandleFunc("/dummy_default/{id_dummy:[0-9]+}", Retrieve[DummyDefault]).Methods("GET")
-	router.HandleFunc("/dummy_default/{id_dummy:[0-9]+}", Update[*DummyDefault]).Methods("PATCH")
-	router.HandleFunc("/dummy_default/{id_dummy:[0-9]+}", Delete[*DummyDefault]).Methods("DELETE")
+	router.HandleFunc("/dummy_default/{id_dummy_default:[0-9]+}", Retrieve[DummyDefault]).Methods("GET")
+	router.HandleFunc("/dummy_default/{id_dummy_default:[0-9]+}", Update[*DummyDefault]).Methods("PATCH")
+	router.HandleFunc("/dummy_default/{id_dummy_default:[0-9]+}", Delete[*DummyDefault]).Methods("DELETE")
 
 	router.ServeHTTP(rec, req)
 

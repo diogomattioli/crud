@@ -49,7 +49,7 @@ func TestCreateOkDefaultValidate(t *testing.T) {
 	var obj DummyDefault
 	db.First(&obj)
 
-	assert.Equal(t, 1, obj.ID)
+	assert.Equal(t, 1, obj.DummyDefaultID)
 	assert.Equal(t, "title", obj.Title)
 }
 
@@ -259,7 +259,7 @@ func TestRetrieveOkDefaultValidate(t *testing.T) {
 		t.Fatal(err)
 	}
 
-	assert.Equal(t, 7, obj.ID)
+	assert.Equal(t, 7, obj.DummyDefaultID)
 	assert.Equal(t, "title4", obj.Title)
 }
 
@@ -371,7 +371,7 @@ func TestUpdateOkDefaultValidate(t *testing.T) {
 
 	var obj DummyDefault
 	db.First(&obj)
-	assert.Equal(t, 1, obj.ID)
+	assert.Equal(t, 1, obj.DummyDefaultID)
 	assert.Equal(t, "title_new", obj.Title)
 }
 
