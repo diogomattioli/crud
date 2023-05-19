@@ -52,7 +52,7 @@ func createSortQuery(db *gorm.DB, obj any, query string) (*gorm.DB, error) {
 
 	if data.Valid(query) {
 		if field, exists := reflect.TypeOf(obj).Elem().FieldByName(query); exists {
-			return db.Order(fmt.Sprintf("%s ASC", field.Name)), nil
+			return db.Order(fmt.Sprintf("%s ASC", data.ToSnakeCase(field.Name))), nil
 		}
 		return db, errors.New("inexistent sort field")
 	}

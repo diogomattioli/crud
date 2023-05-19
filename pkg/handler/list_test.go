@@ -424,6 +424,34 @@ func TestListSort(t *testing.T) {
 	assert.Equal(t, 1, slice[4].ID)
 }
 
+func TestListSortID(t *testing.T) {
+
+	setupDb(5)
+	defer destroyDb()
+
+	req, err := http.NewRequest("GET", "/dummy_default/?sort=DummyDefaultID", nil)
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	rec := serveHTTP(req)
+
+	assert.Equal(t, http.StatusOK, rec.Code)
+	assert.Equal(t, "application/json", rec.Header().Get("Content-Type"))
+	assert.Equal(t, "5", rec.Header().Get("X-Paging-Total"))
+	assert.Equal(t, "250", rec.Header().Get("X-Paging-MaxLimit"))
+
+	var slice []DummyDefault
+	err = json.NewDecoder(rec.Body).Decode(&slice)
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	assert.Equal(t, 5, len(slice))
+	assert.Equal(t, 1, slice[0].DummyDefaultID)
+	assert.Equal(t, 5, slice[4].DummyDefaultID)
+}
+
 func TestListSortWrongField(t *testing.T) {
 
 	setupDb(5)
