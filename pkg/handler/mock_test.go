@@ -88,22 +88,6 @@ func (o *DummyDefault) GetID() int {
 	return o.DummyDefaultID
 }
 
-type MockAuth struct {
-	shouldFail bool
-}
-
-func (a MockAuth) Authenticate(user string, pass string) bool {
-	return !a.shouldFail
-}
-
-func (a MockAuth) Create() string {
-	return "123-token"
-}
-
-func (a MockAuth) Use(token string) bool {
-	return token == "123-token"
-}
-
 func setupDb(quantity int) {
 
 	db, err := gorm.Open(sqlite.Open(":memory:"), &gorm.Config{})

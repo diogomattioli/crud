@@ -194,3 +194,19 @@ func serveHTTPAuth(req *http.Request) *httptest.ResponseRecorder {
 
 	return rec
 }
+
+type MockAuth struct {
+	shouldFail bool
+}
+
+func (a MockAuth) Authenticate(user string, pass string) bool {
+	return !a.shouldFail
+}
+
+func (a MockAuth) Create() string {
+	return "123-token"
+}
+
+func (a MockAuth) Use(token string) bool {
+	return token == "123-token"
+}
