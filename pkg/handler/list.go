@@ -18,25 +18,26 @@ const (
 	defaultLimit = 50
 )
 
-func createSearchQuery(db *gorm.DB, obj any, query []string) *gorm.DB {
+func createSearchQuery[T any](db *gorm.DB, obj T, query []string) *gorm.DB {
 
 	if len(query) == 0 {
 		return db
 	}
 
-	var fields []string
-
 	ty := reflect.TypeOf(obj).Elem()
-	for i := 0; i < ty.NumField(); i++ {
-		if ty.Field(i).Type.Name() == "string" || ty.Field(i).Type.Name() == "NullString" {
-			fields = append(fields, ty.Field(i).Name)
-		}
-	}
 
 	for i := 0; i < len(query); i++ {
-		if str := query[i]; data.Valid(str) {
-			for _, field := range fields {
-				db = db.Or(fmt.Sprintf("LOWER(%s) LIKE LOWER(?)", data.ToSnakeCase(field)), "%"+str+"%")
+		for j := 0; j < ty.NumField(); j++ {
+
+			typeName := ty.Field(j).Type.Name()
+			fieldName := ty.Field(j).Name
+
+			if data.Valid(query[i]) && (typeName == "string" || typeName == "NullString") {
+				db = db.Or(fmt.Sprintf("%s LIKE LOWER(?)", data.ToSnakeCase(fieldName)), "%"+query[i]+"%")
+			} else if value, err := strconv.Atoi(query[i]); err == nil && (strings.HasPrefix(typeName, "int") || strings.HasPrefix(typeName, "NullInt")) {
+				db = db.Or(fmt.Sprintf("%s = ?", data.ToSnakeCase(fieldName)), value)
+			} else if value, err := strconv.ParseFloat(query[i], 64); err == nil && (strings.HasPrefix(typeName, "float") || strings.HasPrefix(typeName, "NullFloat")) {
+				db = db.Or(fmt.Sprintf("%s = ?", data.ToSnakeCase(fieldName)), value)
 			}
 		}
 	}
@@ -44,7 +45,7 @@ func createSearchQuery(db *gorm.DB, obj any, query []string) *gorm.DB {
 	return db
 }
 
-func createSortQuery(db *gorm.DB, obj any, query string) (*gorm.DB, error) {
+func createSortQuery[T any](db *gorm.DB, obj T, query string) (*gorm.DB, error) {
 
 	if query == "" {
 		return db, nil
@@ -60,7 +61,7 @@ func createSortQuery(db *gorm.DB, obj any, query string) (*gorm.DB, error) {
 	return db, nil
 }
 
-func selectReturnedFields(db *gorm.DB, obj any, query string) (*gorm.DB, error) {
+func selectReturnedFields[T any](db *gorm.DB, obj T, query string) (*gorm.DB, error) {
 
 	if query == "" {
 		return db, nil

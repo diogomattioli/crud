@@ -346,8 +346,8 @@ func TestListSearch(t *testing.T) {
 
 	assert.Equal(t, http.StatusOK, rec.Code)
 	assert.Equal(t, "application/json", rec.Header().Get("Content-Type"))
-	assert.Equal(t, "3", rec.Header().Get("X-Paging-Total"))
-	assert.Equal(t, "3", rec.Header().Get("X-Paging-Size"))
+	assert.Equal(t, "4", rec.Header().Get("X-Paging-Total"))
+	assert.Equal(t, "4", rec.Header().Get("X-Paging-Size"))
 	assert.Equal(t, "250", rec.Header().Get("X-Paging-MaxLimit"))
 
 	var slice []Dummy
@@ -356,10 +356,11 @@ func TestListSearch(t *testing.T) {
 		t.Fatal(err)
 	}
 
-	assert.Equal(t, len(slice), 3)
+	assert.Equal(t, len(slice), 4)
 	assert.Equal(t, 1, slice[0].ID)
-	assert.Equal(t, 11, slice[1].ID)
-	assert.Equal(t, 21, slice[2].ID)
+	assert.Equal(t, 5, slice[1].ID)
+	assert.Equal(t, 11, slice[2].ID)
+	assert.Equal(t, 21, slice[3].ID)
 }
 
 func TestListSearchMultiple(t *testing.T) {
@@ -376,8 +377,8 @@ func TestListSearchMultiple(t *testing.T) {
 
 	assert.Equal(t, http.StatusOK, rec.Code)
 	assert.Equal(t, "application/json", rec.Header().Get("Content-Type"))
-	assert.Equal(t, "6", rec.Header().Get("X-Paging-Total"))
-	assert.Equal(t, "6", rec.Header().Get("X-Paging-Size"))
+	assert.Equal(t, "7", rec.Header().Get("X-Paging-Total"))
+	assert.Equal(t, "7", rec.Header().Get("X-Paging-Size"))
 	assert.Equal(t, "250", rec.Header().Get("X-Paging-MaxLimit"))
 
 	var slice []Dummy
@@ -386,13 +387,14 @@ func TestListSearchMultiple(t *testing.T) {
 		t.Fatal(err)
 	}
 
-	assert.Equal(t, len(slice), 6)
+	assert.Equal(t, len(slice), 7)
 	assert.Equal(t, 1, slice[0].ID)
 	assert.Equal(t, 3, slice[1].ID)
-	assert.Equal(t, 11, slice[2].ID)
-	assert.Equal(t, 13, slice[3].ID)
-	assert.Equal(t, 21, slice[4].ID)
-	assert.Equal(t, 23, slice[5].ID)
+	assert.Equal(t, 5, slice[2].ID)
+	assert.Equal(t, 11, slice[3].ID)
+	assert.Equal(t, 13, slice[4].ID)
+	assert.Equal(t, 21, slice[5].ID)
+	assert.Equal(t, 23, slice[6].ID)
 }
 
 func TestListSort(t *testing.T) {
