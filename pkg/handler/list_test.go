@@ -173,7 +173,7 @@ func TestListFields(t *testing.T) {
 	setupDb(1)
 	defer destroyDb()
 
-	req, err := http.NewRequest("GET", "/dummy/?fields=ID", nil)
+	req, err := http.NewRequest("GET", "/dummy/?field=ID", nil)
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -197,7 +197,7 @@ func TestListFields(t *testing.T) {
 	assert.Equal(t, "", slice[0].Title)
 	assert.Equal(t, false, slice[0].Valid)
 
-	req, err = http.NewRequest("GET", "/dummy/?fields=Title,Valid", nil)
+	req, err = http.NewRequest("GET", "/dummy/?field=Title&field=Valid", nil)
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -227,7 +227,7 @@ func TestListFieldsWrongField(t *testing.T) {
 	setupDb(1)
 	defer destroyDb()
 
-	req, err := http.NewRequest("GET", "/dummy/?fields=IDWrong", nil)
+	req, err := http.NewRequest("GET", "/dummy/?field=IDWrong", nil)
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -236,7 +236,7 @@ func TestListFieldsWrongField(t *testing.T) {
 
 	assert.Equal(t, http.StatusBadRequest, rec.Code)
 
-	req, err = http.NewRequest("GET", "/dummy/?fields=TitleWrong,Valid", nil)
+	req, err = http.NewRequest("GET", "/dummy/?field=TitleWrong&field=Valid", nil)
 	if err != nil {
 		t.Fatal(err)
 	}

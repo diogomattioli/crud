@@ -61,15 +61,8 @@ func createSortQuery[T any](db *gorm.DB, obj T, query string) (*gorm.DB, error) 
 	return db, nil
 }
 
-func selectReturnedFields[T any](db *gorm.DB, obj T, query string) (*gorm.DB, error) {
-
-	if query == "" {
-		return db, nil
-	}
-
+func selectReturnedFields[T any](db *gorm.DB, obj T, queries []string) (*gorm.DB, error) {
 	var fields []string
-
-	queries := strings.Split(strings.ReplaceAll(query, " ", ""), ",")
 
 	ty := reflect.TypeOf(obj).Elem()
 	for _, query := range queries {
@@ -141,7 +134,7 @@ func List[T any](w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	innerDb, err = selectReturnedFields(innerDb, &obj, URLQuery.Get("fields"))
+	innerDb, err = selectReturnedFields(innerDb, &obj, URLQuery["field"])
 	if err != nil {
 		w.WriteHeader(http.StatusBadRequest)
 		return
