@@ -4,16 +4,21 @@ import (
 	"bytes"
 	"fmt"
 	"io"
+	"log"
 	"mime/multipart"
 	"net/http"
 	"net/http/httptest"
+	"os"
 	"strings"
 
 	"github.com/diogomattioli/crud/pkg/data"
 	"github.com/gorilla/mux"
 	"gorm.io/driver/sqlite"
 	"gorm.io/gorm"
+	"gorm.io/gorm/logger"
 )
+
+var enableDbLogging bool = false
 
 type Dummy struct {
 	ID    int    `json:"id_dummy,omitempty" gorm:"primaryKey"`
@@ -90,7 +95,17 @@ func (o *DummyDefault) GetID() int {
 
 func setupDb(quantity int) {
 
-	db, err := gorm.Open(sqlite.Open(":memory:"), &gorm.Config{})
+	var newLogger logger.Interface
+	if enableDbLogging {
+		newLogger = logger.New(
+			log.New(os.Stdout, "\r\n", log.LstdFlags),
+			logger.Config{
+				LogLevel: logger.Info,
+			},
+		)
+	}
+
+	db, err := gorm.Open(sqlite.Open(":memory:"), &gorm.Config{Logger: newLogger})
 	if err != nil {
 		panic("failed to connect database")
 	}
