@@ -18,25 +18,21 @@ const (
 	defaultLimit = 50
 )
 
-func createSearchQuery[T any](db *gorm.DB, obj T, query []string) *gorm.DB {
-
-	if len(query) == 0 {
-		return db
-	}
+func createSearchQuery[T any](db *gorm.DB, obj T, queries []string) *gorm.DB {
 
 	ty := reflect.TypeOf(obj).Elem()
 
-	for i := 0; i < len(query); i++ {
+	for _, query := range queries {
 		for j := 0; j < ty.NumField(); j++ {
 
 			typeName := ty.Field(j).Type.Name()
 			fieldName := ty.Field(j).Name
 
-			if data.Valid(query[i]) && (typeName == "string" || typeName == "NullString") {
-				db = db.Or(fmt.Sprintf("%s LIKE LOWER(?)", data.ToSnakeCase(fieldName)), "%"+query[i]+"%")
-			} else if value, err := strconv.Atoi(query[i]); err == nil && (strings.HasPrefix(typeName, "int") || strings.HasPrefix(typeName, "NullInt")) {
+			if data.Valid(query) && (typeName == "string" || typeName == "NullString") {
+				db = db.Or(fmt.Sprintf("%s LIKE LOWER(?)", data.ToSnakeCase(fieldName)), "%"+query+"%")
+			} else if value, err := strconv.Atoi(query); err == nil && (strings.HasPrefix(typeName, "int") || strings.HasPrefix(typeName, "NullInt")) {
 				db = db.Or(fmt.Sprintf("%s = ?", data.ToSnakeCase(fieldName)), value)
-			} else if value, err := strconv.ParseFloat(query[i], 64); err == nil && (strings.HasPrefix(typeName, "float") || strings.HasPrefix(typeName, "NullFloat")) {
+			} else if value, err := strconv.ParseFloat(query, 64); err == nil && (strings.HasPrefix(typeName, "float") || strings.HasPrefix(typeName, "NullFloat")) {
 				db = db.Or(fmt.Sprintf("%s = ?", data.ToSnakeCase(fieldName)), value)
 			}
 		}
