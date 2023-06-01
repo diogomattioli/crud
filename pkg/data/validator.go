@@ -1,6 +1,7 @@
 package data
 
 import (
+	"context"
 	"encoding/json"
 	"fmt"
 	"strings"
@@ -8,29 +9,29 @@ import (
 
 type CreateValidator interface {
 	GetID() int
-	ValidateCreate(token string) error
+	ValidateCreate(ctx context.Context) error
 }
 
 type UpdateValidator[T any] interface {
-	ValidateUpdate(old T, token string) error
+	ValidateUpdate(ctx context.Context, old T) error
 }
 
 type DeleteValidator interface {
-	ValidateDelete(token string) error
+	ValidateDelete(ctx context.Context) error
 }
 
 type Validate[T any] struct {
 }
 
-func (*Validate[T]) ValidateCreate(token string) error {
+func (*Validate[T]) ValidateCreate(ctx context.Context) error {
 	return nil
 }
 
-func (v *Validate[T]) ValidateUpdate(old T, token string) error {
-	return v.ValidateCreate(token)
+func (v *Validate[T]) ValidateUpdate(ctx context.Context, old T) error {
+	return v.ValidateCreate(ctx)
 }
 
-func (*Validate[T]) ValidateDelete(token string) error {
+func (*Validate[T]) ValidateDelete(ctx context.Context) error {
 	return nil
 }
 

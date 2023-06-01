@@ -2,6 +2,7 @@ package handler
 
 import (
 	"bytes"
+	"context"
 	"fmt"
 	"io"
 	"log"
@@ -30,33 +31,33 @@ func (o *Dummy) GetID() int {
 	return o.ID
 }
 
-func (o *Dummy) ValidateCreate(token string) error {
+func (o *Dummy) ValidateCreate(ctx context.Context) error {
 	if !o.Valid {
 		return data.ValidationErrorNew(1, "Error - Not Valid")
 	}
-	if token != "" {
-		return data.ValidationErrorNew(1, fmt.Sprintf("Token - %+v", token))
+	if session, ok := ctx.Value(Session{}).(Session); ok && session.token != "" {
+		return data.ValidationErrorNew(1, fmt.Sprintf("Token - %+v", session.token))
 	}
 
 	return nil
 }
 
-func (o *Dummy) ValidateUpdate(old *Dummy, token string) error {
+func (o *Dummy) ValidateUpdate(ctx context.Context, old *Dummy) error {
 	if !o.Valid {
 		return data.ValidationErrorNew(1, "Error - Not Valid")
 	}
-	if token != "" {
-		return data.ValidationErrorNew(1, fmt.Sprintf("Token - %+v", token))
+	if session, ok := ctx.Value(Session{}).(Session); ok && session.token != "" {
+		return data.ValidationErrorNew(1, fmt.Sprintf("Token - %+v", session.token))
 	}
 	return nil
 }
 
-func (o *Dummy) ValidateDelete(token string) error {
+func (o *Dummy) ValidateDelete(ctx context.Context) error {
 	if !o.Valid {
 		return data.ValidationErrorNew(1, "Error - Not Valid")
 	}
-	if token != "" {
-		return data.ValidationErrorNew(1, fmt.Sprintf("Token - %+v", token))
+	if session, ok := ctx.Value(Session{}).(Session); ok && session.token != "" {
+		return data.ValidationErrorNew(1, fmt.Sprintf("Token - %+v", session.token))
 	}
 	return nil
 }
@@ -72,21 +73,21 @@ func (o *SubDummy) GetID() int {
 	return o.ID
 }
 
-func (o *SubDummy) ValidateCreate(token string) error {
+func (o *SubDummy) ValidateCreate(ctx context.Context) error {
 	if !o.Valid {
 		return data.ValidationErrorNew(1, "Error - Not Valid")
 	}
 	return nil
 }
 
-func (o *SubDummy) ValidateUpdate(old *SubDummy, token string) error {
+func (o *SubDummy) ValidateUpdate(ctx context.Context, old *SubDummy) error {
 	if !o.Valid {
 		return data.ValidationErrorNew(1, "Error - Not Valid")
 	}
 	return nil
 }
 
-func (o *SubDummy) ValidateDelete(token string) error {
+func (o *SubDummy) ValidateDelete(ctx context.Context) error {
 	if !o.Valid {
 		return data.ValidationErrorNew(1, "Error - Not Valid")
 	}

@@ -1,12 +1,17 @@
 package handler
 
 import (
+	"context"
 	"encoding/json"
 	"fmt"
 	"net/http"
 
 	"github.com/diogomattioli/crud/pkg/data"
 )
+
+type Session struct {
+	token string
+}
 
 func Create[T data.CreateValidator](w http.ResponseWriter, r *http.Request) {
 
@@ -42,7 +47,9 @@ func Create[T data.CreateValidator](w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	err = obj.ValidateCreate(r.Header.Get("X-Access-Token"))
+	ctx := context.WithValue(r.Context(), Session{}, Session{token: r.Header.Get("X-Access-Token")})
+
+	err = obj.ValidateCreate(ctx)
 	if err != nil {
 		w.WriteHeader(http.StatusUnprocessableEntity)
 		fmt.Fprintf(w, "%v", err)
@@ -126,7 +133,9 @@ func Update[T data.UpdateValidator[T]](w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	err = obj.ValidateUpdate(old, r.Header.Get("X-Access-Token"))
+	ctx := context.WithValue(r.Context(), Session{}, Session{token: r.Header.Get("X-Access-Token")})
+
+	err = obj.ValidateUpdate(ctx, old)
 	if err != nil {
 		w.WriteHeader(http.StatusUnprocessableEntity)
 		fmt.Fprintf(w, "%v", err)
@@ -154,7 +163,9 @@ func Delete[T data.DeleteValidator](w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	err = obj.ValidateDelete(r.Header.Get("X-Access-Token"))
+	ctx := context.WithValue(r.Context(), Session{}, Session{token: r.Header.Get("X-Access-Token")})
+
+	err = obj.ValidateDelete(ctx)
 	if err != nil {
 		w.WriteHeader(http.StatusUnprocessableEntity)
 		fmt.Fprintf(w, "%v", err)
