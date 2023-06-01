@@ -35,8 +35,8 @@ func (o *Dummy) ValidateCreate(ctx context.Context) error {
 	if !o.Valid {
 		return data.ValidationErrorNew(1, "Error - Not Valid")
 	}
-	if session, ok := ctx.Value(Session{}).(Session); ok && session.token != "" {
-		return data.ValidationErrorNew(1, fmt.Sprintf("Token - %+v", session.token))
+	if session, ok := ctx.Value(Session{}).(Session); ok && session.Token != "" {
+		return data.ValidationErrorNew(1, fmt.Sprintf("Token - %+v", session.Token))
 	}
 
 	return nil
@@ -46,8 +46,8 @@ func (o *Dummy) ValidateUpdate(ctx context.Context, old *Dummy) error {
 	if !o.Valid {
 		return data.ValidationErrorNew(1, "Error - Not Valid")
 	}
-	if session, ok := ctx.Value(Session{}).(Session); ok && session.token != "" {
-		return data.ValidationErrorNew(1, fmt.Sprintf("Token - %+v", session.token))
+	if session, ok := ctx.Value(Session{}).(Session); ok && session.Token != "" {
+		return data.ValidationErrorNew(1, fmt.Sprintf("Token - %+v", session.Token))
 	}
 	return nil
 }
@@ -56,8 +56,8 @@ func (o *Dummy) ValidateDelete(ctx context.Context) error {
 	if !o.Valid {
 		return data.ValidationErrorNew(1, "Error - Not Valid")
 	}
-	if session, ok := ctx.Value(Session{}).(Session); ok && session.token != "" {
-		return data.ValidationErrorNew(1, fmt.Sprintf("Token - %+v", session.token))
+	if session, ok := ctx.Value(Session{}).(Session); ok && session.Token != "" {
+		return data.ValidationErrorNew(1, fmt.Sprintf("Token - %+v", session.Token))
 	}
 	return nil
 }

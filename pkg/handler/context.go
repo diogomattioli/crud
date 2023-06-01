@@ -10,6 +10,10 @@ import (
 	"gorm.io/gorm"
 )
 
+type Session struct {
+	Token string
+}
+
 var db *gorm.DB
 
 func SetDatabase(_db *gorm.DB) {

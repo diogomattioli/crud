@@ -9,10 +9,6 @@ import (
 	"github.com/diogomattioli/crud/pkg/data"
 )
 
-type Session struct {
-	token string
-}
-
 func Create[T data.CreateValidator](w http.ResponseWriter, r *http.Request) {
 
 	if r.Header.Get("Content-Type") != "application/json" {
@@ -47,7 +43,7 @@ func Create[T data.CreateValidator](w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	ctx := context.WithValue(r.Context(), Session{}, Session{token: r.Header.Get("X-Access-Token")})
+	ctx := context.WithValue(r.Context(), Session{}, Session{Token: r.Header.Get("X-Access-Token")})
 
 	err = obj.ValidateCreate(ctx)
 	if err != nil {
@@ -133,7 +129,7 @@ func Update[T data.UpdateValidator[T]](w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	ctx := context.WithValue(r.Context(), Session{}, Session{token: r.Header.Get("X-Access-Token")})
+	ctx := context.WithValue(r.Context(), Session{}, Session{Token: r.Header.Get("X-Access-Token")})
 
 	err = obj.ValidateUpdate(ctx, old)
 	if err != nil {
@@ -163,7 +159,7 @@ func Delete[T data.DeleteValidator](w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	ctx := context.WithValue(r.Context(), Session{}, Session{token: r.Header.Get("X-Access-Token")})
+	ctx := context.WithValue(r.Context(), Session{}, Session{Token: r.Header.Get("X-Access-Token")})
 
 	err = obj.ValidateDelete(ctx)
 	if err != nil {
