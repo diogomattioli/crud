@@ -30,23 +30,33 @@ func (o *Dummy) GetID() int {
 	return o.ID
 }
 
-func (o *Dummy) ValidateCreate() error {
+func (o *Dummy) ValidateCreate(token string) error {
 	if !o.Valid {
 		return data.ValidationErrorNew(1, "Error - Not Valid")
+	}
+	if token != "" {
+		return data.ValidationErrorNew(1, fmt.Sprintf("Token - %+v", token))
+	}
+
+	return nil
+}
+
+func (o *Dummy) ValidateUpdate(old *Dummy, token string) error {
+	if !o.Valid {
+		return data.ValidationErrorNew(1, "Error - Not Valid")
+	}
+	if token != "" {
+		return data.ValidationErrorNew(1, fmt.Sprintf("Token - %+v", token))
 	}
 	return nil
 }
 
-func (o *Dummy) ValidateUpdate(old *Dummy) error {
+func (o *Dummy) ValidateDelete(token string) error {
 	if !o.Valid {
 		return data.ValidationErrorNew(1, "Error - Not Valid")
 	}
-	return nil
-}
-
-func (o *Dummy) ValidateDelete() error {
-	if !o.Valid {
-		return data.ValidationErrorNew(1, "Error - Not Valid")
+	if token != "" {
+		return data.ValidationErrorNew(1, fmt.Sprintf("Token - %+v", token))
 	}
 	return nil
 }
@@ -62,21 +72,21 @@ func (o *SubDummy) GetID() int {
 	return o.ID
 }
 
-func (o *SubDummy) ValidateCreate() error {
+func (o *SubDummy) ValidateCreate(token string) error {
 	if !o.Valid {
 		return data.ValidationErrorNew(1, "Error - Not Valid")
 	}
 	return nil
 }
 
-func (o *SubDummy) ValidateUpdate(old *SubDummy) error {
+func (o *SubDummy) ValidateUpdate(old *SubDummy, token string) error {
 	if !o.Valid {
 		return data.ValidationErrorNew(1, "Error - Not Valid")
 	}
 	return nil
 }
 
-func (o *SubDummy) ValidateDelete() error {
+func (o *SubDummy) ValidateDelete(token string) error {
 	if !o.Valid {
 		return data.ValidationErrorNew(1, "Error - Not Valid")
 	}

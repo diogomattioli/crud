@@ -8,29 +8,29 @@ import (
 
 type CreateValidator interface {
 	GetID() int
-	ValidateCreate() error
+	ValidateCreate(token string) error
 }
 
 type UpdateValidator[T any] interface {
-	ValidateUpdate(T) error
+	ValidateUpdate(old T, token string) error
 }
 
 type DeleteValidator interface {
-	ValidateDelete() error
+	ValidateDelete(token string) error
 }
 
 type Validate[T any] struct {
 }
 
-func (*Validate[T]) ValidateCreate() error {
+func (*Validate[T]) ValidateCreate(token string) error {
 	return nil
 }
 
-func (v *Validate[T]) ValidateUpdate(T) error {
-	return v.ValidateCreate()
+func (v *Validate[T]) ValidateUpdate(old T, token string) error {
+	return v.ValidateCreate(token)
 }
 
-func (*Validate[T]) ValidateDelete() error {
+func (*Validate[T]) ValidateDelete(token string) error {
 	return nil
 }
 

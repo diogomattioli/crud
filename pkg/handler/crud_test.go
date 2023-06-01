@@ -6,6 +6,7 @@ import (
 	"strings"
 	"testing"
 
+	"github.com/diogomattioli/crud/pkg/data"
 	"github.com/stretchr/testify/assert"
 )
 
@@ -213,6 +214,28 @@ func TestCreateMisconfigured(t *testing.T) {
 	rec := serveHTTP(req)
 
 	assert.Equal(t, http.StatusNotFound, rec.Code)
+}
+
+func TestCreateToken(t *testing.T) {
+
+	setupDb(0)
+	defer destroyDb()
+
+	req, err := http.NewRequest("POST", "/dummy/", strings.NewReader("{\"id_dummy\":0,\"title\":\"title\",\"valid\":true}"))
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	req.Header.Set("Content-Type", "application/json")
+	req.Header.Set("X-Access-Token", "dummy-token")
+	rec := serveHTTP(req)
+
+	assert.Equal(t, http.StatusUnprocessableEntity, rec.Code)
+
+	var error data.ValidationError
+	err = json.NewDecoder(rec.Body).Decode(&error)
+	assert.Equal(t, nil, err)
+	assert.Equal(t, "Token - dummy-token", error.Message)
 }
 
 func TestRetrieveOk(t *testing.T) {
@@ -551,6 +574,28 @@ func TestUpdateMisconfigured(t *testing.T) {
 	assert.Equal(t, http.StatusNotFound, rec.Code)
 }
 
+func TestUpdateToken(t *testing.T) {
+
+	setupDb(1)
+	defer destroyDb()
+
+	req, err := http.NewRequest("PATCH", "/dummy/1", strings.NewReader("{\"id_dummy\":1,\"title\":\"title_new\",\"valid\":true}"))
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	req.Header.Set("Content-Type", "application/json")
+	req.Header.Set("X-Access-Token", "dummy-token")
+	rec := serveHTTP(req)
+
+	assert.Equal(t, http.StatusUnprocessableEntity, rec.Code)
+
+	var error data.ValidationError
+	err = json.NewDecoder(rec.Body).Decode(&error)
+	assert.Equal(t, nil, err)
+	assert.Equal(t, "Token - dummy-token", error.Message)
+}
+
 func TestDeleteOk(t *testing.T) {
 
 	setupDb(1)
@@ -663,4 +708,25 @@ func TestDeleteMisconfigured(t *testing.T) {
 	rec := serveHTTP(req)
 
 	assert.Equal(t, http.StatusNotFound, rec.Code)
+}
+
+func TestDeleteToken(t *testing.T) {
+
+	setupDb(1)
+	defer destroyDb()
+
+	req, err := http.NewRequest("DELETE", "/dummy/1", nil)
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	req.Header.Set("X-Access-Token", "dummy-token")
+	rec := serveHTTP(req)
+
+	assert.Equal(t, http.StatusUnprocessableEntity, rec.Code)
+
+	var error data.ValidationError
+	err = json.NewDecoder(rec.Body).Decode(&error)
+	assert.Equal(t, nil, err)
+	assert.Equal(t, "Token - dummy-token", error.Message)
 }

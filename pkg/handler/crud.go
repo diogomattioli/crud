@@ -42,7 +42,7 @@ func Create[T data.CreateValidator](w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	err = obj.ValidateCreate()
+	err = obj.ValidateCreate(r.Header.Get("X-Access-Token"))
 	if err != nil {
 		w.WriteHeader(http.StatusUnprocessableEntity)
 		fmt.Fprintf(w, "%v", err)
@@ -126,7 +126,7 @@ func Update[T data.UpdateValidator[T]](w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	err = obj.ValidateUpdate(old)
+	err = obj.ValidateUpdate(old, r.Header.Get("X-Access-Token"))
 	if err != nil {
 		w.WriteHeader(http.StatusUnprocessableEntity)
 		fmt.Fprintf(w, "%v", err)
@@ -154,7 +154,7 @@ func Delete[T data.DeleteValidator](w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	err = obj.ValidateDelete()
+	err = obj.ValidateDelete(r.Header.Get("X-Access-Token"))
 	if err != nil {
 		w.WriteHeader(http.StatusUnprocessableEntity)
 		fmt.Fprintf(w, "%v", err)
