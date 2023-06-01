@@ -203,7 +203,7 @@ func (a MockAuth) Authenticate(user string, pass string) bool {
 	return !a.shouldFail
 }
 
-func (a MockAuth) Create() string {
+func (a MockAuth) Create(user string) string {
 	return "123-token"
 }
 

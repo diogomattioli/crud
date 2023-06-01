@@ -33,7 +33,7 @@ func Login(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	token := auth.Create()
+	token := auth.Create(user)
 
 	w.Header().Set("X-Access-Token", token)
 }
